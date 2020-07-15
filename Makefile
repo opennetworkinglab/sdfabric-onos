@@ -83,26 +83,29 @@ ifdef ONOS_REVIEW
 endif
 endif
 
-onos-build: onos ## : Build the tost-onos docker image
+onos-build: onos ## : Builds the tost-onos docker image
 	# Set some env variables
 	cd ${ONOS_ROOT} && \
 	. tools/build/envDefaults && \
 	docker build . -t ${ONOS_IMAGENAME} \
 	--build-arg PROFILE=${ONOS_PROFILE}
 
-onos-push: ## : Push the tost-onos docker image to an external repository
+onos-push: ## : Pushes the tost-onos docker image to an external repository
 	docker push ${ONOS_IMAGENAME}
 
-tost-build: ## : Build the tost docker image
+tost-build: ## : Builds the tost docker image
 	# TBD
 
-tost-push: ## : Push the tost-onos docker image to an external repository
+tost-push: ## : Pushes the tost-onos docker image to an external repository
 	# TBD
 
-# Used for jenkins verification
+# Used for CI job
 docker-build: onos-build tost-build ## : Builds the tost-onos and tost images
 
-clean: ## : Delete any locally copied files or artificats
+# User for CD job
+docker-push: onos-push tost-push ## : Pushes the tost-onos and tost images
+
+clean: ## : Deletes any locally copied files or artificats
 	rm -rf onos
 
 # end file
