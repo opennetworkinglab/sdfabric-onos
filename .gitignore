@@ -1,3 +1,12 @@
 *.log
 patch.txt
+.idea/
+local-apps/
 onos/
+trellis-control/
+trellis-t3/
+fabric-tofino/
+up4/
+kafka-onos/
+.m2/
+mvn_settings.xml
