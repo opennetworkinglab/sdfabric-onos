@@ -72,3 +72,4 @@ make DOCKER_REPOSITORY=onosproject/ tost-push
 ## CI/CD targets
 
 There are two special targets used by the CI/CD jobs: `docker-build` and `docker-push`. The first target automates the build process of the `tost` image. While the second one, it is just a `tost-push` called in a different way (temporary). Feel free to use them if you are ok with the prerequisites steps.
+
