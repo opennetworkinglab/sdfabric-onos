@@ -23,7 +23,7 @@ make ONOS_BRANCH=onos-2.2 onos-build
 make ONOS_REVIEW=12345 onos-build
 ```
 
-Makefile will build also the apps. These are the apps currently integrated in the script: **trellis-control**, **trellis-t3**, **fabric-tofino**, **up4** and **kafka-onos**. For each one, there is a **build** target.
+Makefile will build also the apps. These are the apps currently integrated in the script: **trellis-control**, **trellis-t3**, **fabric-tofino**, **up4**, **kafka-onos** and **fabric-tna**. For each one, there is a **build** target.
 
 `app-name-build` builds the oar from the source code. If **APPNAME_MVN** is specified, the script will download the oar from the maven repositories. As prerequisite, the script prepares `mvn_settings.xml` file, creates the `local-apps` folder and checks out the code if it is not present (relies on `app-name` target). `app-name` allows the developers to specify an **APPNAME_BRANCH** or an **APPNAME_REVIEW**.
 
@@ -35,6 +35,13 @@ make trellis-control-build
 ```sh
 # Build up4 app from the source code.
 make up4-build
+```
+
+`apps-build` is an additional target that automates the build process of the apps building one by one all the apps.
+
+```sh
+# Build one by one all the apps
+make apps-build
 ```
 
 Finally, the last build target is `tost-build`. It builds a `tost` monolithic image using as base the `tost-onos` image. It basically adds the external apps used by **TOST**. It does not activate all the required apps. This step is performed during the deployment and the required apps are specified in the chart.
@@ -57,10 +64,10 @@ make clean
 
 We provide multiple push target for the Makefile. Typically, you need to first login by `docker login` command to push the image on a repository.
 
-`onos-push` will push the `tost-onos` image on the defined **DOCKER_REGISTRY** and **DOCKER_REPOSITORY**.
+`onos-push` will push the `tost-onos` image.
 
 ```sh
-make DOCKER_REPOSITORY=onosproject/ onos-push
+make onos-push
 ```
 
 `tost-push` will push the `tost` image on the defined **DOCKER_REGISTRY** and **DOCKER_REPOSITORY**.
@@ -71,4 +78,4 @@ make DOCKER_REPOSITORY=onosproject/ tost-push
 
 ## CI/CD targets
 
-There are two special targets used by the CI/CD jobs: `docker-build` and `docker-push`. The first target automates the build process of the `tost` image. While the second one, it is just a `tost-push` called in a different way (temporary). Feel free to use them if you are ok with the prerequisites steps.
+There are two special targets used by the CI/CD jobs: `docker-build` and `docker-push`. The first target automates the build process of the `tost` image (`onos-build`, `apps-build` and `tost-build`). While the second one, it is just a `tost-push` called in a different way (temporary). Feel free to use them if you are ok with the prerequisites steps.

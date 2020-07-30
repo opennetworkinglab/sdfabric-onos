@@ -24,6 +24,8 @@ CURRENT_GID              := $(shell id -g)
 MKFILE_PATH              := $(abspath $(lastword $(MAKEFILE_LIST)))
 CURRENT_DIR              := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
 LOCAL_APPS               := local-apps
+# Do not attach stdin if running in an environment without it (e.g., Jenkins)
+IT                       := $(shell test -t 0 && echo "-it" || echo "-t")
 
 # Docker related
 DOCKER_REGISTRY          ?=
@@ -45,9 +47,7 @@ else
 endif
 
 # ONOS related
-ONOS_VERSION                 ?= $(shell cat ./ONOS_VERSION)
-ONOS_DOCKER_TAG              ?= ${ONOS_VERSION}
-ONOS_IMAGENAME               := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}tost-onos:${ONOS_DOCKER_TAG}
+ONOS_IMAGENAME               := tost-onos
 ONOS_BRANCH                  ?=
 ONOS_REVIEW                  ?=
 export ONOS_ROOT             := $(shell pwd)/onos
@@ -141,22 +141,22 @@ help: ## : Print this help
 	| sort | awk 'BEGIN {FS=":.* ## "}; {printf "%-25s %s\n", $$1, $$2};'
 	@echo
 	@echo "Environment variables:"
-	@echo "ONOS_BRANCH              : Define to use the following branch to build the image"
-	@echo "ONOS_REVIEW              : Define to use the following review to build the image"
-	@echo "TRELLIS_CONTROL_BRANCH   : Define to use the following branch to build the image"
-	@echo "TRELLIS_CONTROL_REVIEW   : Define to use the following review to build the image"
-	@echo "TRELLIS_CONTROL_MVN      : Define to download the app using mvn"
-	@echo "TRELLIS_T3_BRANCH        : Define to use the following branch to build the image"
-	@echo "TRELLIS_T3_REVIEW        : Define to use the following review to build the image"
-	@echo "TRELLIS_T3_MVN           : Define to download the app using mvn"
-	@echo "FABRIC_TOFINO_BRANCH     : Define to use the following branch to build the image"
-	@echo "FABRIC_TOFINO_REVIEW     : Define to use the following review to build the image"
-	@echo "FABRIC_TOFINO_MVN        : Define to download the app using mvn"
-	@echo "UP4_BRANCH               : Define to use the following branch to build the image"
-	@echo "KAFKA_ONOS_BRANCH        : Define to use the following branch to build the image"
-	@echo "KAFKA_ONOS_REVIEW        : Define to use the following review to build the image"
-	@echo "KAFKA_ONOS_MVN           : Define to download the app using mvn"
-	@echo "FABRIC_TNA_BRANCH        : Define to use the following branch to build the image"
+	@echo "ONOS_BRANCH               : Define to use the following branch to build the image"
+	@echo "ONOS_REVIEW               : Define to use the following review to build the image"
+	@echo "TRELLIS_CONTROL_BRANCH    : Define to use the following branch to build the image"
+	@echo "TRELLIS_CONTROL_REVIEW    : Define to use the following review to build the image"
+	@echo "TRELLIS_CONTROL_MVN       : Define to download the app using mvn"
+	@echo "TRELLIS_T3_BRANCH         : Define to use the following branch to build the image"
+	@echo "TRELLIS_T3_REVIEW         : Define to use the following review to build the image"
+	@echo "TRELLIS_T3_MVN            : Define to download the app using mvn"
+	@echo "FABRIC_TOFINO_BRANCH      : Define to use the following branch to build the image"
+	@echo "FABRIC_TOFINO_REVIEW      : Define to use the following review to build the image"
+	@echo "FABRIC_TOFINO_MVN         : Define to download the app using mvn"
+	@echo "UP4_BRANCH                : Define to use the following branch to build the image"
+	@echo "KAFKA_ONOS_BRANCH         : Define to use the following branch to build the image"
+	@echo "KAFKA_ONOS_REVIEW         : Define to use the following review to build the image"
+	@echo "KAFKA_ONOS_MVN            : Define to download the app using mvn"
+	@echo "FABRIC_TNA_BRANCH         : Define to use the following branch to build the image"
 	@echo ""
 	@echo "'onos' clones onos if it does not exist in the workspace."
 	@echo "Uses current workspace unless above vars are defined."
@@ -214,7 +214,7 @@ ifdef TRELLIS_CONTROL_MVN
 	# Dependencies are needed only by the mvn copy - contains repo settings
 	cp dependencies.xml ${TRELLIS_CONTROL_ROOT}/
 	# Mounting the current dir allows to cache the .m2 folder that is persisted and leveraged by subsequent builds
-	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/trellis-control ${DOCKER_MVN_IMAGE} \
+	docker run ${IT} --rm -v ${CURRENT_DIR}:/root -w /root/trellis-control ${DOCKER_MVN_IMAGE} \
 		bash -c "mvn dependency:copy -Dartifact=${TRELLIS_CONTROL_ARTIFACT}:${TRELLIS_CONTROL_VERSION}:oar \
 		-DoutputDirectory=oar/target -Dmdep.useBaseVersion=true \
 		-Dmdep.overWriteReleases=true -Dmdep.overWriteSnapshots=true -f dependencies.xml \
@@ -222,7 +222,7 @@ ifdef TRELLIS_CONTROL_MVN
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
 else
 	# Having the same mount file allows to reduce build time.
-	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/trellis-control ${DOCKER_MVN_IMAGE} \
+	docker run ${IT} --rm -v ${CURRENT_DIR}:/root -w /root/trellis-control ${DOCKER_MVN_IMAGE} \
 		bash -c "mvn clean install -s mvn_settings.xml; \
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
 endif
@@ -250,14 +250,14 @@ trellis-t3-build: mvn_settings.xml local-apps trellis-t3  ## : Builds trellis-t3
 	cp mvn_settings.xml ${TRELLIS_T3_ROOT}/
 ifdef TRELLIS_T3_MVN
 	cp dependencies.xml ${TRELLIS_T3_ROOT}/
-	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/trellis-t3 ${DOCKER_MVN_IMAGE} \
+	docker run ${IT} --rm -v ${CURRENT_DIR}:/root -w /root/trellis-t3 ${DOCKER_MVN_IMAGE} \
 		bash -c "mvn dependency:copy -Dartifact=${TRELLIS_T3_ARTIFACT}:${TRELLIS_T3_VERSION}:oar \
 		-DoutputDirectory=app/target -Dmdep.useBaseVersion=true \
 		-Dmdep.overWriteReleases=true -Dmdep.overWriteSnapshots=true -f dependencies.xml \
 		-s mvn_settings.xml; \
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
 else
-	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/trellis-t3 ${DOCKER_MVN_IMAGE} \
+	docker run ${IT} --rm -v ${CURRENT_DIR}:/root -w /root/trellis-t3 ${DOCKER_MVN_IMAGE} \
 		bash -c "mvn clean install -s mvn_settings.xml; \
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
 endif
@@ -284,7 +284,7 @@ fabric-tofino-build: mvn_settings.xml local-apps fabric-tofino  ## : Builds fabr
 	cp mvn_settings.xml ${FABRIC_TOFINO_ROOT}/
 ifdef FABRIC_TOFINO_MVN
 	cp dependencies.xml ${FABRIC_TOFINO_ROOT}/
-	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/fabric-tofino ${DOCKER_MVN_IMAGE} \
+	docker run ${IT} --rm -v ${CURRENT_DIR}:/root -w /root/fabric-tofino ${DOCKER_MVN_IMAGE} \
 		bash -c "mvn dependency:copy -Dartifact=${FABRIC_TOFINO_ARTIFACT}:${FABRIC_TOFINO_VERSION}:oar \
 		-DoutputDirectory=target -Dmdep.useBaseVersion=true \
 		-Dmdep.overWriteReleases=true -Dmdep.overWriteSnapshots=true -f dependencies.xml \
@@ -294,7 +294,7 @@ else
 	# This workaround is temporary - typically we need to build only the pipeconf
 	cd ${FABRIC_TOFINO_ROOT} && make ${FABRIC_TOFINO_TARGETS} SDE_DOCKER_IMG=${FABRIC_TOFINO_SDE_DOCKER_IMG} \
 		P4CFLAGS=${FABRIC_TOFINO_P4CFLAGS}
-	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/fabric-tofino ${DOCKER_MVN_IMAGE} \
+	docker run ${IT} --rm -v ${CURRENT_DIR}:/root -w /root/fabric-tofino ${DOCKER_MVN_IMAGE} \
 		bash -c "mvn clean install -s mvn_settings.xml; \
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
 endif
@@ -312,7 +312,7 @@ up4-build: mvn_settings.xml local-apps up4  ## : Builds up4 using local app
 	cp mvn_settings.xml ${UP4_ROOT}/app
 	# Copy the p4 reources inside the app before the actual build
 	cd ${UP4_ROOT} && make ${UP4_TARGETS}
-	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/up4/app ${DOCKER_MVN_IMAGE} \
+	docker run ${IT} --rm -v ${CURRENT_DIR}:/root -w /root/up4/app ${DOCKER_MVN_IMAGE} \
 		bash -c "mvn clean install -s mvn_settings.xml; \
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
 	cp ${UP4_ROOT}/app/app/target/${UP4_ARTIFACTID}-${UP4_VERSION}.oar ${LOCAL_APPS}/
@@ -338,14 +338,14 @@ kafka-onos-build: mvn_settings.xml local-apps kafka-onos  ## : Builds kafka-onos
 	cp mvn_settings.xml ${KAFKA_ONOS_ROOT}/
 ifdef KAFKA_ONOS_MVN
 	cp dependencies.xml ${KAFKA_ONOS_ROOT}/
-	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/kafka-onos ${DOCKER_MVN_IMAGE} \
+	docker run ${IT} --rm -v ${CURRENT_DIR}:/root -w /root/kafka-onos ${DOCKER_MVN_IMAGE} \
 		bash -c "mvn dependency:copy -Dartifact=${KAFKA_ONOS_ARTIFACT}:${KAFKA_ONOS_VERSION}:oar \
 		-DoutputDirectory=target -Dmdep.useBaseVersion=true \
 		-Dmdep.overWriteReleases=true -Dmdep.overWriteSnapshots=true -f dependencies.xml \
 		-s mvn_settings.xml; \
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
 else
-	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/kafka-onos ${DOCKER_MVN_IMAGE} \
+	docker run ${IT} --rm -v ${CURRENT_DIR}:/root -w /root/kafka-onos ${DOCKER_MVN_IMAGE} \
 		bash -c "mvn clean install -s mvn_settings.xml; \
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
 endif
@@ -363,7 +363,7 @@ fabric-tna-build: mvn_settings.xml local-apps fabric-tna  ## : Builds fabric-tna
 	cp mvn_settings.xml ${FABRIC_TNA_ROOT}/
 	# Rebuilds the artifact and the pipeconf
 	cd ${FABRIC_TNA_ROOT} && make ${FABRIC_TNA_TARGETS} SDE_DOCKER_IMG=${FABRIC_TNA_SDE_DOCKER_IMG}
-	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/fabric-tna ${DOCKER_MVN_IMAGE} \
+	docker run ${IT} --rm -v ${CURRENT_DIR}:/root -w /root/fabric-tna ${DOCKER_MVN_IMAGE} \
 		bash -c "mvn clean install -s mvn_settings.xml; \
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
 	cp ${FABRIC_TNA_ROOT}/target/${FABRIC_TNA_ARTIFACTID}-${FABRIC_TNA_VERSION}.oar ${LOCAL_APPS}/
@@ -384,6 +384,8 @@ ifdef ONOS_REVIEW
 	cd ${ONOS_ROOT} && git review -d ${ONOS_REVIEW}
 endif
 endif
+
+apps-build: trellis-control-build trellis-t3-build fabric-tofino-build up4-build kafka-onos-build fabric-tna-build ## : Build the onos apps
 
 onos-build: onos ## : Builds the tost-onos docker image
 	# Set some env variables
@@ -411,7 +413,7 @@ tost-push: ## : Pushes the tost docker image to an external repository
 	docker push ${TOST_IMAGENAME}
 
 # Used for CI job
-docker-build: onos trellis-control-build trellis-t3-build fabric-tofino-build up4-build kafka-onos-build fabric-tna-build tost-build ## : Builds the tost image
+docker-build: onos-build apps-build tost-build ## : Builds the tost image
 
 # User for CD job
 docker-push: tost-push ## : Pushes the tost image

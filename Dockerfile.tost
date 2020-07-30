@@ -16,7 +16,7 @@
 
 # We start from an onos image and install the apps.
 # We need at least an onos image built with 'tost' profile
-FROM onosproject/tost-onos:2.2-latest as install
+FROM tost-onos as install
 
 ARG KARAF_VERSION
 ARG LOCAL_APPS
@@ -45,7 +45,7 @@ RUN chmod 755 ./app-install.sh
 RUN ./app-install.sh
 
 # Create the final image coping over the installed applications from the install stage
-FROM onosproject/tost-onos:2.2-latest
+FROM tost-onos
 
 ARG KARAF_VERSION
 

@@ -28,7 +28,6 @@ for oar in $OARS; do
     name=$(grep "name=" $APP_INSTALL_ROOT/app.xml | sed 's/<app name="//g;s/".*//g')
     mkdir -p $APPS_ROOT/$name
     cp $APP_INSTALL_ROOT/app.xml $APPS_ROOT/$name/app.xml
-    touch $APPS_ROOT/$name/active
     [ -f $APP_INSTALL_ROOT/app.png ] && cp $APP_INSTALL_ROOT/app.png $APPS_ROOT/$name/app.png
     cp $APP_INSTALL_ROOT/$(basename $oar) $APPS_ROOT/$name/$name.oar
     cp -rf $APP_INSTALL_ROOT/m2/* $KARAF_M2
