@@ -86,9 +86,9 @@ FABRIC_TOFINO_GROUPID        := org.opencord
 FABRIC_TOFINO_ARTIFACTID     := fabric-tofino
 FABRIC_TOFINO_ARTIFACT       := ${FABRIC_TOFINO_GROUPID}:${FABRIC_TOFINO_ARTIFACTID}
 FABRIC_TOFINO_VERSION        := 1.1.1-SNAPSHOT
-FABRIC_TOFINO_TARGETS        := clean fabric-spgw
-export SDE_DOCKER_IMG        := opennetworking/bf-sde:9.0.0-p4c
-export P4CFLAGS              := "-DS1U_SGW_PREFIX='(8w192++8w0++8w0++8w0)' -DS1U_SGW_PREFIX_LEN=8"
+FABRIC_TOFINO_TARGETS        := fabric-spgw
+FABRIC_TOFINO_SDE_DOCKER_IMG := opennetworking/bf-sde:9.0.0-p4c
+FABRIC_TOFINO_P4CFLAGS       := "-DS1U_SGW_PREFIX='(8w192++8w0++8w0++8w0)' -DS1U_SGW_PREFIX_LEN=8"
 
 # Up4 related
 UP4_BRANCH                   ?=
@@ -113,9 +113,24 @@ KAFKA_ONOS_ARTIFACTID        := kafka
 KAFKA_ONOS_ARTIFACT          := ${KAFKA_ONOS_GROUPID}:${KAFKA_ONOS_ARTIFACTID}
 KAFKA_ONOS_VERSION           := 2.4.0-SNAPSHOT
 
+# Fabric-TNA related
+FABRIC_TNA_BRANCH            ?=
+ONOS_BUILDER_API             ?=
+FABRIC_TNA_ROOT              := $(shell pwd)/fabric-tna
+FABRIC_TNA_ARTIFACTID        := fabric-tna
+FABRIC_TNA_VERSION           := 1.0.0-SNAPSHOT
+FABRIC_TNA_TARGETS           := fabric fabric-spgw
+FABRIC_TNA_SDE_DOCKER_IMG    := opennetworking/bf-sde:9.2.0-p4c
+
+ifeq ($(ONOS_BUILDER_API),)
+  FABRIC_TNA_REPO = https://github.com/stratum/fabric-tna.git
+else
+  FABRIC_TNA_REPO = https://onos-builder:${ONOS_BUILDER_API}@github.com/stratum/fabric-tna.git
+endif
+
 .PHONY:
 
-.SILENT: up4
+.SILENT: up4 fabric-tna
 
 # This should to be the first and default target in this Makefile
 help: ## : Print this help
@@ -141,6 +156,7 @@ help: ## : Print this help
 	@echo "KAFKA_ONOS_BRANCH        : Define to use the following branch to build the image"
 	@echo "KAFKA_ONOS_REVIEW        : Define to use the following review to build the image"
 	@echo "KAFKA_ONOS_MVN           : Define to download the app using mvn"
+	@echo "FABRIC_TNA_BRANCH        : Define to use the following branch to build the image"
 	@echo ""
 	@echo "'onos' clones onos if it does not exist in the workspace."
 	@echo "Uses current workspace unless above vars are defined."
@@ -158,6 +174,9 @@ help: ## : Print this help
 	@echo "Uses current workspace unless above vars are defined."
 	@echo ""
 	@echo "'kafka-onos' clones kafka-onos if it does not exist in the workspace."
+	@echo "Uses current workspace unless above vars are"
+	@echo ""
+	@echo "'fabric-tna' clones fabric-tna if it does not exist in the workspace."
 	@echo "Uses current workspace unless above vars are"
 	@echo ""
 
@@ -273,7 +292,8 @@ ifdef FABRIC_TOFINO_MVN
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
 else
 	# This workaround is temporary - typically we need to build only the pipeconf
-	cd ${FABRIC_TOFINO_ROOT} && make ${FABRIC_TOFINO_TARGETS}
+	cd ${FABRIC_TOFINO_ROOT} && make ${FABRIC_TOFINO_TARGETS} SDE_DOCKER_IMG=${FABRIC_TOFINO_SDE_DOCKER_IMG} \
+		P4CFLAGS=${FABRIC_TOFINO_P4CFLAGS}
 	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/fabric-tofino ${DOCKER_MVN_IMAGE} \
 		bash -c "mvn clean install -s mvn_settings.xml; \
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
@@ -288,7 +308,7 @@ ifdef UP4_BRANCH
 	cd ${UP4_ROOT} && git checkout ${UP4_BRANCH}
 endif
 
-up4-build: mvn_settings.xml local-apps up4  ## : Builds up4 using local app or mvn
+up4-build: mvn_settings.xml local-apps up4  ## : Builds up4 using local app
 	cp mvn_settings.xml ${UP4_ROOT}/app
 	# Copy the p4 reources inside the app before the actual build
 	cd ${UP4_ROOT} && make ${UP4_TARGETS}
@@ -330,6 +350,23 @@ else
 		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
 endif
 	cp ${KAFKA_ONOS_ROOT}/target/${KAFKA_ONOS_ARTIFACTID}-${KAFKA_ONOS_VERSION}.oar ${LOCAL_APPS}/
+
+fabric-tna: ## : Checkout fabric-tna code
+	if [ ! -d "fabric-tna" ]; then \
+		git clone ${FABRIC_TNA_REPO}; \
+	fi
+ifdef FABRIC_TNA_BRANCH
+	cd ${FABRIC_TNA_ROOT} && git checkout ${FABRIC_TNA_BRANCH}
+endif
+
+fabric-tna-build: mvn_settings.xml local-apps fabric-tna  ## : Builds fabric-tna using local app
+	cp mvn_settings.xml ${FABRIC_TNA_ROOT}/
+	# Rebuilds the artifact and the pipeconf
+	cd ${FABRIC_TNA_ROOT} && make ${FABRIC_TNA_TARGETS} SDE_DOCKER_IMG=${FABRIC_TNA_SDE_DOCKER_IMG}
+	docker run -t --rm -v ${CURRENT_DIR}:/root -w /root/fabric-tna ${DOCKER_MVN_IMAGE} \
+		bash -c "mvn clean install -s mvn_settings.xml; \
+		chown -R ${CURRENT_UID}:${CURRENT_GID} /root"
+	cp ${FABRIC_TNA_ROOT}/target/${FABRIC_TNA_ARTIFACTID}-${FABRIC_TNA_VERSION}.oar ${LOCAL_APPS}/
 
 onos: ## : Checkout onos code
 	if [ ! -d "onos" ]; then \
@@ -374,7 +411,7 @@ tost-push: ## : Pushes the tost docker image to an external repository
 	docker push ${TOST_IMAGENAME}
 
 # Used for CI job
-docker-build: onos trellis-control-build trellis-t3-build kafka-onos-build fabric-tofino-build up4-build tost-build ## : Builds the tost image
+docker-build: onos trellis-control-build trellis-t3-build fabric-tofino-build up4-build kafka-onos-build fabric-tna-build tost-build ## : Builds the tost image
 
 # User for CD job
 docker-push: tost-push ## : Pushes the tost image
@@ -386,6 +423,7 @@ clean: ## : Deletes any locally copied files or artifacts
 	rm -rf ${FABRIC_TOFINO_ROOT}
 	rm -rf ${UP4_ROOT}
 	rm -rf ${KAFKA_ONOS_ROOT}
+	rm -rf ${FABRIC_TNA_ROOT}
 	rm -rf ${LOCAL_APPS}
 	rm -rf .m2
 	rm -rf mvn_settings.xml

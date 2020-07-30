@@ -8,5 +8,6 @@ trellis-t3/
 fabric-tofino/
 up4/
 kafka-onos/
+fabric-tna/
 .m2/
 mvn_settings.xml
