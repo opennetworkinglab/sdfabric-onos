@@ -174,10 +174,10 @@ help: ## : Print this help
 	@echo "Uses current workspace unless above vars are defined."
 	@echo ""
 	@echo "'kafka-onos' clones kafka-onos if it does not exist in the workspace."
-	@echo "Uses current workspace unless above vars are"
+	@echo "Uses current workspace unless above vars are defined."
 	@echo ""
 	@echo "'fabric-tna' clones fabric-tna if it does not exist in the workspace."
-	@echo "Uses current workspace unless above vars are"
+	@echo "Uses current workspace unless above vars are defined."
 	@echo ""
 
 ## Make targets
