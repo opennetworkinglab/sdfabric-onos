@@ -128,7 +128,7 @@ else
   FABRIC_TNA_REPO = https://onos-builder:${ONOS_BUILDER_API}@github.com/stratum/fabric-tna.git
 endif
 
-.PHONY:
+.PHONY: onos trellis-control trellis-t3 fabric-tofino up4 kafka-onos fabric-tna
 
 .SILENT: up4 fabric-tna
 
