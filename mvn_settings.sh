@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #
 # Copyright 2020-present Open Networking Foundation
 #
@@ -14,6 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+http_proxy=${http_proxy:-}
+https_proxy=${https_proxy:-}
+no_proxy=${no_proxy:-}
+
 if [ -f mvn_settings.custom.xml ] ; then
   cp mvn_settings.custom.xml mvn_settings.xml
   exit 0
