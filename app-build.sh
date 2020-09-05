@@ -32,9 +32,9 @@ IT=$(test -t 0 && echo "-it" || echo "-t")
 
 # Trellis-control related vars
 TRELLIS_CONTROL_GROUPID=org.onosproject
-TRELLIS_CONTROL_ARTIFACTID=segmentrouting-oar
+TRELLIS_CONTROL_ARTIFACTID=segmentrouting-app
 TRELLIS_CONTROL_ARTIFACT=${TRELLIS_CONTROL_GROUPID}:${TRELLIS_CONTROL_ARTIFACTID}
-TRELLIS_CONTROL_OAR=${TRELLIS_CONTROL_ROOT}/oar/target/${TRELLIS_CONTROL_ARTIFACTID}-${TRELLIS_CONTROL_VERSION}.oar
+TRELLIS_CONTROL_OAR=${TRELLIS_CONTROL_ROOT}/app/target/${TRELLIS_CONTROL_ARTIFACTID}-${TRELLIS_CONTROL_VERSION}.oar
 
 # Trellis-t3 related vars
 TRELLIS_T3_GROUPID=org.onosproject
@@ -137,16 +137,16 @@ function build_app {
 
 function trellis-control-build {
 	# Build function
-	build_app "${TRELLIS_CONTROL_ROOT}"/oar/target \
+	build_app "${TRELLIS_CONTROL_ROOT}"/app/target \
 	"${TRELLIS_CONTROL_ROOT}"/ "trellis-control" \
 	"${TRELLIS_CONTROL_ARTIFACT}" "${TRELLIS_CONTROL_VERSION}" \
-	"oar/target" "${TRELLIS_CONTROL_OAR}" "${TRELLIS_CONTROL_REPO}"
+	"app/target" "${TRELLIS_CONTROL_OAR}" "${TRELLIS_CONTROL_REPO}"
 	# If MVN was not successful - built from sources
 	if [ "$MVN" -eq "0" ]; then
 		# Update VERSION
 		extract_version "${TRELLIS_CONTROL_ROOT}"
 		# Update OAR
-		TRELLIS_CONTROL_OAR="${TRELLIS_CONTROL_ROOT}"/oar/target/"${TRELLIS_CONTROL_ARTIFACTID}"-"${PROJECT_VERSION}".oar
+		TRELLIS_CONTROL_OAR="${TRELLIS_CONTROL_ROOT}"/app/target/"${TRELLIS_CONTROL_ARTIFACTID}"-"${PROJECT_VERSION}".oar
 	fi
 	# Final step requires to move the oar to the folder used by the tost docker file. Moreover, it will help catch up errors
 	cp "${TRELLIS_CONTROL_OAR}" "${LOCAL_APPS}"/
