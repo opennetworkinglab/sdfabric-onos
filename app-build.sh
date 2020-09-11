@@ -177,6 +177,10 @@ function fabric-tofino-build {
 		FABRIC_TOFINO_OAR="${FABRIC_TOFINO_ROOT}"/target/"${FABRIC_TOFINO_ARTIFACTID}"-"${PROJECT_VERSION}".oar
 	fi
 	cp "${FABRIC_TOFINO_OAR}" "${LOCAL_APPS}"/
+	# Extra step to avoid build failure; clean up artifacts to ensure
+	# the release process won't complain about uncommitted changes.
+	cd "${FABRIC_TOFINO_ROOT}" || exit 1 && git checkout .
+	cd ../
 }
 
 function up4-build {
