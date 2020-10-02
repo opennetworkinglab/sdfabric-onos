@@ -69,28 +69,16 @@ export FABRIC_TOFINO_ROOT    := $(shell pwd)/fabric-tofino
 export FABRIC_TOFINO_REPO    := https://gerrit.opencord.org/fabric-tofino
 
 # Up4 related
-OMECPROJECT_API              ?=
 export UP4_ROOT              := $(shell pwd)/up4
-
-ifeq ($(OMECPROJECT_API),)
-  export UP4_REPO = https://github.com/omec-project/up4.git
-else
-  export UP4_REPO = https://omecproject:${OMECPROJECT_API}@github.com/omec-project/up4.git
-endif
+export UP4_REPO              := git@github.com:omec-project/up4.git
 
 # Kafka-onos related
 export KAFKA_ONOS_ROOT       := $(shell pwd)/kafka-onos
 export KAFKA_ONOS_REPO       := https://gerrit.opencord.org/kafka-onos
 
 # Fabric-TNA related
-ONOS_BUILDER_API             ?=
 export FABRIC_TNA_ROOT       := $(shell pwd)/fabric-tna
-
-ifeq ($(ONOS_BUILDER_API),)
-  export FABRIC_TNA_REPO = https://github.com/stratum/fabric-tna.git
-else
-  export FABRIC_TNA_REPO = https://onos-builder:${ONOS_BUILDER_API}@github.com/stratum/fabric-tna.git
-endif
+export FABRIC_TNA_REPO       := git@github.com:stratum/fabric-tna.git
 
 .PHONY: onos trellis-control trellis-t3 fabric-tofino up4 kafka-onos fabric-tna
 
@@ -141,7 +129,7 @@ trellis-control: ## : Checkout trellis-control code
 		exit 1; \
 	fi
 
-	# Try the git checkout first otherwise git review
+	# Try the git checkout first otherwise we download the review
 	if ! (cd ${TRELLIS_CONTROL_ROOT} && git checkout ${TRELLIS_CONTROL_VERSION}); then \
 	if ! (cd ${TRELLIS_CONTROL_ROOT} && git fetch ${TRELLIS_CONTROL_REPO} ${TRELLIS_CONTROL_VERSION} && git checkout FETCH_HEAD); then \
 		echo "Unable to fetch the changes from the trellis-control repository"; \
@@ -151,8 +139,14 @@ trellis-control: ## : Checkout trellis-control code
 trellis-control-build: mvn_settings.xml local-apps trellis-control  ## : Builds trellis-control using local app or mvn
 	@./app-build.sh $@
 
-trellis-control-fetch: ## : downloads commits, files, and refs from remote trellis-control
+trellis-control-update: ## : downloads commits, files, and refs from remote trellis-control
 	cd ${TRELLIS_CONTROL_ROOT} && git fetch
+
+	# Try to pull - but fails if we have not checked a branch
+	if ! (cd ${TRELLIS_CONTROL_ROOT} && git pull); then \
+		echo "Unable to pull from the trellis-control repository"; \
+		exit 1; \
+	fi
 
 trellis-t3: ## : Checkout trellis-t3 code
 	if [ ! -d "trellis-t3" ]; then \
@@ -174,8 +168,13 @@ trellis-t3: ## : Checkout trellis-t3 code
 trellis-t3-build: mvn_settings.xml local-apps trellis-t3  ## : Builds trellis-t3 using local app or mvn
 	@./app-build.sh $@
 
-trellis-t3-fetch: ## : downloads commits, files, and refs from remote trellis-t3
+trellis-t3-update: ## : downloads commits, files, and refs from remote trellis-t3
 	cd ${TRELLIS_T3_ROOT} && git fetch
+
+	if ! (cd ${TRELLIS_T3_ROOT} && git pull); then \
+		echo "Unable to pull from the trellis-t3 repository"; \
+		exit 1; \
+	fi
 
 fabric-tofino: ## : Checkout fabric-tofino code
 	if [ ! -d "fabric-tofino" ]; then \
@@ -198,8 +197,13 @@ fabric-tofino: ## : Checkout fabric-tofino code
 fabric-tofino-build: mvn_settings.xml local-apps fabric-tofino  ## : Builds fabric-tofino using local app or mvn
 	@./app-build.sh $@
 
-fabric-tofino-fetch: ## : downloads commits, files, and refs from remote fabric-tofino
+fabric-tofino-update: ## : downloads commits, files, and refs from remote fabric-tofino
 	cd ${FABRIC_TOFINO_ROOT} && git fetch
+
+	if ! (cd ${FABRIC_TOFINO_ROOT} && git pull); then \
+		echo "Unable to pull from the fabric-tofino repository"; \
+		exit 1; \
+	fi
 
 up4: ## : Checkout up4 code
 	if [ ! -d "up4" ]; then \
@@ -222,8 +226,13 @@ up4: ## : Checkout up4 code
 up4-build: mvn_settings.xml local-apps up4  ## : Builds up4 using local app
 	@./app-build.sh $@
 
-up4-fetch: ## : downloads commits, files, and refs from remote up4
+up4-update: ## : downloads commits, files, and refs from remote up4
 	cd ${UP4_ROOT} && git fetch
+
+	if ! (cd ${UP4_ROOT} && git pull); then \
+		echo "Unable to pull from the up4 repository"; \
+		exit 1; \
+	fi
 
 kafka-onos: ## : Checkout kafka-onos code
 	if [ ! -d "kafka-onos" ]; then \
@@ -245,8 +254,13 @@ kafka-onos: ## : Checkout kafka-onos code
 kafka-onos-build: mvn_settings.xml local-apps kafka-onos  ## : Builds kafka-onos using local app or mvn
 	@./app-build.sh $@
 
-kafka-onos-fetch: ## : downloads commits, files, and refs from remote kafka-onos
+kafka-onos-update: ## : downloads commits, files, and refs from remote kafka-onos
 	cd ${KAFKA_ONOS_ROOT} && git fetch
+
+	if ! (cd ${KAFKA_ONOS_ROOT} && git pull); then \
+		echo "Unable to pull from the kafka-onos repository"; \
+		exit 1; \
+	fi
 
 fabric-tna: ## : Checkout fabric-tna code
 	if [ ! -d "fabric-tna" ]; then \
@@ -269,10 +283,15 @@ fabric-tna: ## : Checkout fabric-tna code
 fabric-tna-build: mvn_settings.xml local-apps fabric-tna  ## : Builds fabric-tna using local app
 	@./app-build.sh $@
 
-fabric-tna-fetch: ## : downloads commits, files, and refs from remote fabric-tna
+fabric-tna-update: ## : downloads commits, files, and refs from remote fabric-tna
 	cd ${FABRIC_TNA_ROOT} && git fetch
 
-apps-fetch: trellis-control-fetch trellis-t3-fetch fabric-tofino-fetch up4-fetch kafka-onos-fetch fabric-tna-fetch ## : downloads commits, files, and refs from remotes
+	if ! (cd ${FABRIC_TNA_ROOT} && git pull); then \
+		echo "Unable to pull from the fabric-tna repository"; \
+		exit 1; \
+	fi
+
+apps-update: trellis-control-update trellis-t3-update fabric-tofino-update up4-update kafka-onos-update fabric-tna-update ## : downloads commits, files, and refs from remotes
 
 apps-build: trellis-control-build trellis-t3-build fabric-tofino-build up4-build kafka-onos-build fabric-tna-build ## : Build the onos apps
 
@@ -293,6 +312,14 @@ onos: ## : Checkout onos code
 		echo "Unable to fetch the changes from the onos repository"; \
 		exit 1; \
 	fi \
+	fi
+
+onos-update: ## : downloads commits, files, and refs from remote onos
+	cd ${ONOS_ROOT} && git fetch
+
+	if ! (cd ${ONOS_ROOT} && git pull); then \
+		echo "Unable to pull from the onos repository"; \
+		exit 1; \
 	fi
 
 onos-build: onos ## : Builds the tost-onos docker image

@@ -58,18 +58,18 @@ Finally, the last build target is `tost-build`. It builds a `tost` monolithic im
 make tost-build
 ```
 
-## Fetch
+## Update
 
-Use `fetch` targets to downloads commits, files, and refs from remotes.
+Use `update` targets to downloads commits, files, and refs from remotes.
 
 ```sh
 # Update up4 app.
-make up4-fetch
+make up4-update
 ```
 
 ```sh
 # Update one by one all the apps.
-make apps-fetch
+make apps-update
 ```
 
 ## Clean
