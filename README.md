@@ -60,16 +60,12 @@ make tost-build
 
 ## Update
 
-Use `update` targets to downloads commits, files, and refs from remotes.
+Use `apps` or `appname` targets to downloads commits, files, and refs from remotes.
 
-```sh
-# Update up4 app.
-make up4-update
-```
 
 ```sh
 # Update one by one all the apps.
-make apps-update
+make apps
 ```
 
 ## Clean

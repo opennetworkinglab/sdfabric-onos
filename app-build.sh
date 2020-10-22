@@ -120,7 +120,7 @@ function build_app {
 	if [ ! -f "$7" ]; then
 		cd "$2" || exit 1
 		# Verify for the last time if the VERSION is a checkout object or a review
-		if ! (git checkout "$5"); then
+		if ! (git checkout "origin/$5" || git checkout "$5"); then
 			if ! (git fetch "$8" "$5" && git checkout FETCH_HEAD); then
 				exit 1
 			fi

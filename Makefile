@@ -129,8 +129,11 @@ trellis-control: ## : Checkout trellis-control code
 		exit 1; \
 	fi
 
+	# Updates the repo and avoids any stale branches
+	cd ${TRELLIS_CONTROL_ROOT} && git remote update
+
 	# Try the git checkout first otherwise we download the review
-	if ! (cd ${TRELLIS_CONTROL_ROOT} && git checkout ${TRELLIS_CONTROL_VERSION}); then \
+	if ! (cd ${TRELLIS_CONTROL_ROOT} && (git checkout origin/${TRELLIS_CONTROL_VERSION} || git checkout ${TRELLIS_CONTROL_VERSION})); then \
 	if ! (cd ${TRELLIS_CONTROL_ROOT} && git fetch ${TRELLIS_CONTROL_REPO} ${TRELLIS_CONTROL_VERSION} && git checkout FETCH_HEAD); then \
 		echo "Unable to fetch the changes from the trellis-control repository"; \
 	fi \
@@ -138,15 +141,6 @@ trellis-control: ## : Checkout trellis-control code
 
 trellis-control-build: mvn_settings.xml local-apps trellis-control  ## : Builds trellis-control using local app or mvn
 	@./app-build.sh $@
-
-trellis-control-update: ## : downloads commits, files, and refs from remote trellis-control
-	cd ${TRELLIS_CONTROL_ROOT} && git fetch
-
-	# Try to pull - but fails if we have not checked a branch
-	if ! (cd ${TRELLIS_CONTROL_ROOT} && git pull); then \
-		echo "Unable to pull from the trellis-control repository"; \
-		exit 1; \
-	fi
 
 trellis-t3: ## : Checkout trellis-t3 code
 	if [ ! -d "trellis-t3" ]; then \
@@ -159,7 +153,9 @@ trellis-t3: ## : Checkout trellis-t3 code
 		exit 1; \
 	fi
 
-	if ! (cd ${TRELLIS_T3_ROOT} && git checkout ${TRELLIS_T3_VERSION}); then \
+	cd ${TRELLIS_T3_ROOT} && git remote update
+
+	if ! (cd ${TRELLIS_T3_ROOT} && (git checkout origin/${TRELLIS_T3_VERSION} || git checkout ${TRELLIS_T3_VERSION})); then \
 	if ! (cd ${TRELLIS_T3_ROOT} && git fetch ${TRELLIS_T3_REPO} ${TRELLIS_T3_VERSION} && git checkout FETCH_HEAD); then \
 		echo "Unable to fetch the changes from the trellis-t3 repository"; \
 	fi \
@@ -167,14 +163,6 @@ trellis-t3: ## : Checkout trellis-t3 code
 
 trellis-t3-build: mvn_settings.xml local-apps trellis-t3  ## : Builds trellis-t3 using local app or mvn
 	@./app-build.sh $@
-
-trellis-t3-update: ## : downloads commits, files, and refs from remote trellis-t3
-	cd ${TRELLIS_T3_ROOT} && git fetch
-
-	if ! (cd ${TRELLIS_T3_ROOT} && git pull); then \
-		echo "Unable to pull from the trellis-t3 repository"; \
-		exit 1; \
-	fi
 
 fabric-tofino: ## : Checkout fabric-tofino code
 	if [ ! -d "fabric-tofino" ]; then \
@@ -187,7 +175,9 @@ fabric-tofino: ## : Checkout fabric-tofino code
 		exit 1; \
 	fi
 
-	if ! (cd ${FABRIC_TOFINO_ROOT} && git checkout ${FABRIC_TOFINO_VERSION}); then \
+	cd ${FABRIC_TOFINO_ROOT} && git remote update
+
+	if ! (cd ${FABRIC_TOFINO_ROOT} && (git checkout origin/${FABRIC_TOFINO_VERSION} || git checkout ${FABRIC_TOFINO_VERSION})); then \
 	if ! (cd ${FABRIC_TOFINO_ROOT} && git fetch ${FABRIC_TOFINO_REPO} ${FABRIC_TOFINO_VERSION} && git checkout FETCH_HEAD); then \
 		echo "Unable to fetch the changes from the fabric-tofino repository"; \
 		exit 1; \
@@ -196,14 +186,6 @@ fabric-tofino: ## : Checkout fabric-tofino code
 
 fabric-tofino-build: mvn_settings.xml local-apps fabric-tofino  ## : Builds fabric-tofino using local app or mvn
 	@./app-build.sh $@
-
-fabric-tofino-update: ## : downloads commits, files, and refs from remote fabric-tofino
-	cd ${FABRIC_TOFINO_ROOT} && git fetch
-
-	if ! (cd ${FABRIC_TOFINO_ROOT} && git pull); then \
-		echo "Unable to pull from the fabric-tofino repository"; \
-		exit 1; \
-	fi
 
 up4: ## : Checkout up4 code
 	if [ ! -d "up4" ]; then \
@@ -216,7 +198,9 @@ up4: ## : Checkout up4 code
 		exit 1; \
 	fi
 
-	if ! (cd ${UP4_ROOT} && git checkout ${UP4_VERSION}); then \
+	cd ${UP4_ROOT} && git remote update
+
+	if ! (cd ${UP4_ROOT} && (git checkout origin/${UP4_VERSION} || git checkout ${UP4_VERSION})); then \
 	if ! (cd ${UP4_ROOT} && git fetch ${UP4_REPO} ${UP4_VERSION} && git checkout FETCH_HEAD); then \
 		echo "Unable to fetch the changes from the up4 repository"; \
 		exit 1; \
@@ -225,14 +209,6 @@ up4: ## : Checkout up4 code
 
 up4-build: mvn_settings.xml local-apps up4  ## : Builds up4 using local app
 	@./app-build.sh $@
-
-up4-update: ## : downloads commits, files, and refs from remote up4
-	cd ${UP4_ROOT} && git fetch
-
-	if ! (cd ${UP4_ROOT} && git pull); then \
-		echo "Unable to pull from the up4 repository"; \
-		exit 1; \
-	fi
 
 kafka-onos: ## : Checkout kafka-onos code
 	if [ ! -d "kafka-onos" ]; then \
@@ -245,7 +221,9 @@ kafka-onos: ## : Checkout kafka-onos code
 		exit 1; \
 	fi
 
-	if ! (cd ${KAFKA_ONOS_ROOT} && git checkout ${KAFKA_ONOS_VERSION}); then \
+	cd ${KAFKA_ONOS_ROOT} && git remote update
+
+	if ! (cd ${KAFKA_ONOS_ROOT} && (git checkout origin/${KAFKA_ONOS_VERSION} || git checkout ${KAFKA_ONOS_VERSION})); then \
 	if ! (cd ${KAFKA_ONOS_ROOT} && git fetch ${KAFKA_ONOS_REPO} ${KAFKA_ONOS_VERSION} && git checkout FETCH_HEAD); then \
 		echo "Unable to fetch the changes from the kafka-onos repository"; \
 	fi \
@@ -253,14 +231,6 @@ kafka-onos: ## : Checkout kafka-onos code
 
 kafka-onos-build: mvn_settings.xml local-apps kafka-onos  ## : Builds kafka-onos using local app or mvn
 	@./app-build.sh $@
-
-kafka-onos-update: ## : downloads commits, files, and refs from remote kafka-onos
-	cd ${KAFKA_ONOS_ROOT} && git fetch
-
-	if ! (cd ${KAFKA_ONOS_ROOT} && git pull); then \
-		echo "Unable to pull from the kafka-onos repository"; \
-		exit 1; \
-	fi
 
 fabric-tna: ## : Checkout fabric-tna code
 	if [ ! -d "fabric-tna" ]; then \
@@ -273,7 +243,9 @@ fabric-tna: ## : Checkout fabric-tna code
 		exit 1; \
 	fi
 
-	if ! (cd ${FABRIC_TNA_ROOT} && git checkout ${FABRIC_TNA_VERSION}); then \
+	cd ${FABRIC_TNA_ROOT} && git remote update
+
+	if ! (cd ${FABRIC_TNA_ROOT} && (git checkout origin/${FABRIC_TNA_VERSION} || git checkout ${FABRIC_TNA_VERSION})); then \
 	if ! (cd ${FABRIC_TNA_ROOT} && git fetch ${FABRIC_TNA_REPO} ${FABRIC_TNA_VERSION} && git checkout FETCH_HEAD); then \
 		echo "Unable to fetch the changes from the fabric-tna repository"; \
 		exit 1; \
@@ -283,15 +255,7 @@ fabric-tna: ## : Checkout fabric-tna code
 fabric-tna-build: mvn_settings.xml local-apps fabric-tna  ## : Builds fabric-tna using local app
 	@./app-build.sh $@
 
-fabric-tna-update: ## : downloads commits, files, and refs from remote fabric-tna
-	cd ${FABRIC_TNA_ROOT} && git fetch
-
-	if ! (cd ${FABRIC_TNA_ROOT} && git pull); then \
-		echo "Unable to pull from the fabric-tna repository"; \
-		exit 1; \
-	fi
-
-apps-update: trellis-control-update trellis-t3-update fabric-tofino-update up4-update kafka-onos-update fabric-tna-update ## : downloads commits, files, and refs from remotes
+apps: trellis-control trellis-t3 fabric-tofino up4 kafka-onos fabric-tna ## : downloads commits, files, and refs from remotes
 
 apps-build: trellis-control-build trellis-t3-build fabric-tofino-build up4-build kafka-onos-build fabric-tna-build ## : Build the onos apps
 
@@ -306,20 +270,14 @@ onos: ## : Checkout onos code
 		exit 1; \
 	fi
 
+	cd ${ONOS_ROOT} && git remote update
+
 	# In case of failure, we do not proceed because we cannot build with mvn
-	if ! (cd ${ONOS_ROOT} && git checkout ${ONOS_VERSION}); then \
+	if ! (cd ${ONOS_ROOT} && (git checkout origin/${ONOS_VERSION} || git checkout ${ONOS_VERSION})); then \
 	if ! (cd ${ONOS_ROOT} && git fetch ${ONOS_REPO} ${ONOS_VERSION} && git checkout FETCH_HEAD); then \
 		echo "Unable to fetch the changes from the onos repository"; \
 		exit 1; \
 	fi \
-	fi
-
-onos-update: ## : downloads commits, files, and refs from remote onos
-	cd ${ONOS_ROOT} && git fetch
-
-	if ! (cd ${ONOS_ROOT} && git pull); then \
-		echo "Unable to pull from the onos repository"; \
-		exit 1; \
 	fi
 
 onos-build: onos ## : Builds the tost-onos docker image
