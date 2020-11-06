@@ -26,10 +26,10 @@
 # (2) Checkout Local source code (local branch not yet pushed);
 # (3) Fetch from Gerrit/Github (pending review in the form of refs/changes/... or pending pull request);
 
-export ONOS_VERSION            ?= 2.2.7-b3
-export TRELLIS_CONTROL_VERSION ?= 3.0.0
-export TRELLIS_T3_VERSION      ?= 3.0.0
-export FABRIC_TOFINO_VERSION   ?= e1cf4551b4ab74bb82a7cecf19d197698ffbc1cb
-export UP4_VERSION             ?= aeae3c4588f98ed1b863b3ee451e4bd48988716d
-export KAFKA_ONOS_VERSION      ?= 2.4.0-SNAPSHOT
-export FABRIC_TNA_VERSION      ?= 2268090aa5f973855923f8a52f4077557a90be47
+export ONOS_VERSION            ?= master
+export TRELLIS_CONTROL_VERSION ?= 3.0.1-SNAPSHOT
+export TRELLIS_T3_VERSION      ?= 4.0.0-SNAPSHOT
+export FABRIC_TOFINO_VERSION   ?= master
+export UP4_VERSION             ?= master
+export KAFKA_ONOS_VERSION      ?= 2.5.0-SNAPSHOT
+export FABRIC_TNA_VERSION      ?= master

@@ -1,0 +1,35 @@
+#
+# Copyright 2020-present Open Networking Foundation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Released tags, commits hash, branches and reviews / pull requests.
+
+# The APPNAME targets defined in the Makefile will download the repo and will try to checkout
+# the APPNAME_VERSION defined here, using the following methods in order:
+# (1) Checkout local source code (local branch not yet pushed);
+# (2) Fetch from Gerrit/Github (pending review in the form of refs/changes/... or pending pull request);
+#
+# The APPNAME-build targets will try to build with the given version, using the following sources in order:
+# (1) Download from Maven central (for released versions or snapshots);
+# (2) Checkout Local source code (local branch not yet pushed);
+# (3) Fetch from Gerrit/Github (pending review in the form of refs/changes/... or pending pull request);
+
+export ONOS_VERSION            ?= 2.2.7-b3
+export TRELLIS_CONTROL_VERSION ?= 3.0.0
+export TRELLIS_T3_VERSION      ?= 3.0.0
+export FABRIC_TOFINO_VERSION   ?= e1cf4551b4ab74bb82a7cecf19d197698ffbc1cb
+export UP4_VERSION             ?= aeae3c4588f98ed1b863b3ee451e4bd48988716d
+export KAFKA_ONOS_VERSION      ?= 2.4.0
+export FABRIC_TNA_VERSION      ?= 53e86f15024a097f24b77620bf8b6a4ed7079228

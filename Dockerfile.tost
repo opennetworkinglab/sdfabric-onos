@@ -14,9 +14,11 @@
 # limitations under the License.
 #
 
+ARG DOCKER_TAG
+
 # We start from an onos image and install the apps.
 # We need at least an onos image built with 'tost' profile
-FROM tost-onos as install
+FROM tost-onos:${DOCKER_TAG} as install
 
 ARG KARAF_VERSION
 ARG LOCAL_APPS
@@ -44,8 +46,10 @@ COPY app-install.sh ./app-install.sh
 RUN chmod 755 ./app-install.sh
 RUN ./app-install.sh
 
+ARG DOCKER_TAG
+
 # Create the final image coping over the installed applications from the install stage
-FROM tost-onos
+FROM tost-onos:${DOCKER_TAG}
 
 ARG KARAF_VERSION
 

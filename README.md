@@ -4,9 +4,9 @@ Docker build environment capable of producing a version of **ONOS** and needed a
 
 ## Build
 
-We provide multiple build targets for the Makefile
+We provide multiple build targets for the Makefile. Versions of the components are defined in `Makefile.vars.*` files; `stable` version points to well known stable commits and `master` branch points to **ONOS** master and to the tip of the **TOST** components. **DOCKER_TAG** is used to select which version to build, by default points to `stable`.
 
-`onos-build` is used to build a specialized **Docker** image of **ONOS** (`tost-onos`) that will contain only the apps needed by **TOST**. It depends on `onos` target, which is used to setup the `onos` workspace for the build. It clones `onos` if it does not exist in the workspace, it will try to checkout the **ONOS_VERSION** first and in case of failure will try to download the patchset from remote repository. **ONOS_VERSION** is defined in `Makefile.vars`, overriding the variable at run time it is possible to build a different version of **ONOS**.
+`onos-build` is used to build a specialized **Docker** image of **ONOS** (`tost-onos`) that will contain only the apps needed by **TOST**. It depends on `onos` target, which is used to setup the `onos` workspace for the build. It clones `onos` if it does not exist in the workspace, it will try to checkout the **ONOS_VERSION** first and in case of failure will try to download the patchset from remote repository. **ONOS_VERSION** is defined in `Makefile.vars.DOCKER_TAG` file, overriding the variable at run time it is possible to build a different version of **ONOS**.
 
 
 ```sh
@@ -26,7 +26,7 @@ make ONOS_VERSION=ref/changes/72/12345/1 onos-build
 
 Makefile will build also the apps. These are the apps currently integrated in the script: **trellis-control**, **trellis-t3**, **fabric-tofino**, **up4**, **kafka-onos** and **fabric-tna**. For each one, there is a **build** target.
 
-`appname-build` builds with the version specified in the `Makefile.vars`, using the following sources in order: (1) Maven central (for released versions or snapshots); (2) Local source code (for local branch not yet pushed); (3) Gerrit/Github (for pending review in the form of refs/changes/... or pending pull request). As a prerequisite, the script prepares `mvn_settings.xml` file, creates the `local-apps` folder and checks out the code if it is not present (relies on `appname` target). **APPNAME_VERSION**, defined in `Makefile.vars`, can be overridden at runtime.
+`appname-build` builds with the version specified in the `Makefile.vars.DOCKER_TAG`, using the following sources in order: (1) Maven central (for released versions or snapshots); (2) Local source code (for local branch not yet pushed); (3) Gerrit/Github (for pending review in the form of refs/changes/... or pending pull request). As a prerequisite, the script prepares `mvn_settings.xml` file, creates the `local-apps` folder and checks out the code if it is not present (relies on `appname` target). **APPNAME_VERSION**, defined in `Makefile.vars.DOCKER_TAG` file, can be overridden at runtime.
 
 
 ```sh

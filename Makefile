@@ -18,14 +18,14 @@
 SHELL                        := /bin/bash -e -o pipefail
 
 # General variables
-VERSION                      ?= $(shell cat ./VERSION)
 THIS_MAKE                    := $(lastword $(MAKEFILE_LIST))
 
 # Docker related
 DOCKER_REGISTRY              ?=
 DOCKER_REPOSITORY            ?=
 DOCKER_BUILD_ARGS            ?=
-DOCKER_TAG                   ?= ${VERSION}
+DOCKER_TAG                   ?= stable
+DOCKER_TAG_BUILD_DATE        ?=
 
 # Docker labels. Only set ref and commit date if committed
 DOCKER_LABEL_VCS_URL         ?= $(shell git remote get-url $(shell git remote))
@@ -38,22 +38,30 @@ else
   DOCKER_LABEL_VCS_REF = $(shell git rev-parse HEAD)+dirty
 endif
 
+ifeq ($(DOCKER_TAG),stable)
 # Includes the default ("working") versions of each component
-include ./Makefile.vars
+  include ./Makefile.vars.stable
+else ifeq ($(DOCKER_TAG),master)
+# Includes the master versions of each component
+  include ./Makefile.vars.master
+else
+  $(error You must define properly the DOCKER_TAG variable)
+endif
+
 
 # Shellcheck related
 SHELLCHECK_TAG=v0.7.1
 SHELLCHECK_IMAGE=koalaman/shellcheck:${SHELLCHECK_TAG}
 
 # ONOS related
-ONOS_IMAGENAME               := tost-onos
+ONOS_IMAGENAME               := tost-onos:${DOCKER_TAG}${DOCKER_TAG_BUILD_DATE}
 export ONOS_ROOT             := $(shell pwd)/onos
 ONOS_REPO                    := https://gerrit.onosproject.org/onos
 ONOS_PROFILE                 := "tost"
 KARAF_VERSION                := 4.2.9
 
 # TOST related
-TOST_IMAGENAME               := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}tost:${DOCKER_TAG}
+TOST_IMAGENAME               := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}tost:${DOCKER_TAG}${DOCKER_TAG_BUILD_DATE}
 export LOCAL_APPS            := local-apps
 
 # Trellis-Control related
@@ -101,7 +109,8 @@ help: ## : Print this help
 	@echo "KAFKA_ONOS_VERSION        : Override to use a specific branch/commit/tag/release to build the image"
 	@echo "FABRIC_TNA_VERSION        : Override to use a specific branch/commit/tag/release to build the image"
 	@echo ""
-	@echo "'Makefile.vars' defines default values for '*_VERSION' variables".
+	@echo "'Makefile.vars.stable' defines the stable values for '*_VERSION' variables".
+	@echo "'Makefile.vars.master' defines the tip values for '*_VERSION' variables".
 	@echo ""
 
 ## Make targets
@@ -290,19 +299,20 @@ onos-build: onos ## : Builds the tost-onos docker image
 tost-build: ## : Builds the tost docker image
 	docker build $(DOCKER_BUILD_ARGS) \
     -t ${TOST_IMAGENAME} \
+    --build-arg DOCKER_TAG="${DOCKER_TAG}${DOCKER_TAG_BUILD_DATE}" \
     --build-arg LOCAL_APPS=${LOCAL_APPS} \
     --build-arg KARAF_VERSION=${KARAF_VERSION} \
-    --build-arg org_label_schema_version="${VERSION}" \
+    --build-arg org_label_schema_version="${DOCKER_TAG}${DOCKER_TAG_BUILD_DATE}" \
     --build-arg org_label_schema_vcs_url="${DOCKER_LABEL_VCS_URL}" \
     --build-arg org_label_schema_vcs_ref="${DOCKER_LABEL_VCS_REF}" \
     --build-arg org_label_schema_build_date="${DOCKER_LABEL_BUILD_DATE}" \
-    --build-arg org_onosproject_onos_version="${ONOS_VERSION}"\
-    --build-arg org_onosproject_trellis_control_version="${TRELLIS_CONTROL_VERSION}"\
-    --build-arg org_onosproject_trellis_t3_version="${TRELLIS_T3_VERSION}"\
-    --build-arg org_opencord_fabric_tofino_version="${FABRIC_TOFINO_VERSION}"\
-    --build-arg org_omecproject_up4_version="${UP4_VERSION}"\
-    --build-arg org_opencord_kafka_onos_version="${KAFKA_ONOS_VERSION}"\
-    --build-arg org_stratumproject_fabric_tna_version="${FABRIC_TNA_VERSION}"\
+    --build-arg org_onosproject_onos_version="$(shell cd ${ONOS_ROOT} && git rev-parse HEAD)"\
+    --build-arg org_onosproject_trellis_control_version="$(shell cd ${TRELLIS_CONTROL_ROOT} && git rev-parse HEAD)"\
+    --build-arg org_onosproject_trellis_t3_version="$(shell cd ${TRELLIS_T3_ROOT} && git rev-parse HEAD)"\
+    --build-arg org_opencord_fabric_tofino_version="$(shell cd ${FABRIC_TOFINO_ROOT} && git rev-parse HEAD)"\
+    --build-arg org_omecproject_up4_version="$(shell cd ${UP4_ROOT} && git rev-parse HEAD)"\
+    --build-arg org_opencord_kafka_onos_version="$(shell cd ${KAFKA_ONOS_ROOT} && git rev-parse HEAD)"\
+    --build-arg org_stratumproject_fabric_tna_version="$(shell cd ${FABRIC_TNA_ROOT} && git rev-parse HEAD)"\
     -f Dockerfile.tost .
 
 onos-push: ## : Pushes the tost-onos docker image to an external repository
