@@ -32,4 +32,4 @@ export TRELLIS_T3_VERSION      ?= 4.0.0-SNAPSHOT
 export FABRIC_TOFINO_VERSION   ?= master
 export UP4_VERSION             ?= master
 export KAFKA_ONOS_VERSION      ?= 2.6.0-SNAPSHOT
-export FABRIC_TNA_VERSION      ?= master
+export FABRIC_TNA_VERSION      ?= main
