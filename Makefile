@@ -72,10 +72,6 @@ export TRELLIS_CONTROL_REPO  := https://gerrit.onosproject.org/trellis-control
 export TRELLIS_T3_ROOT       := $(shell pwd)/trellis-t3
 export TRELLIS_T3_REPO       := https://gerrit.onosproject.org/trellis-t3
 
-# Fabric-Tofino related
-export FABRIC_TOFINO_ROOT    := $(shell pwd)/fabric-tofino
-export FABRIC_TOFINO_REPO    := https://gerrit.opencord.org/fabric-tofino
-
 # Up4 related
 export UP4_ROOT              := $(shell pwd)/up4
 export UP4_REPO              := git@github.com:omec-project/up4.git
@@ -88,7 +84,7 @@ export KAFKA_ONOS_REPO       := https://gerrit.opencord.org/kafka-onos
 export FABRIC_TNA_ROOT       := $(shell pwd)/fabric-tna
 export FABRIC_TNA_REPO       := git@github.com:stratum/fabric-tna.git
 
-.PHONY: onos trellis-control trellis-t3 fabric-tofino up4 kafka-onos fabric-tna
+.PHONY: onos trellis-control trellis-t3 up4 kafka-onos fabric-tna
 
 .SILENT: up4 fabric-tna
 
@@ -104,7 +100,6 @@ help: ## : Print this help
 	@echo "ONOS_VERSION              : Override to use a specific branch/commit/tag/release to build the image"
 	@echo "TRELLIS_CONTROL_VERSION   : Override to use a specific branch/commit/tag/release to build the image"
 	@echo "TRELLIS_T3_VERSION        : Override to use a specific branch/commit/tag/release to build the image"
-	@echo "FABRIC_TOFINO_VERSION     : Override to use a specific branch/commit/tag/release to build the image"
 	@echo "UP4_VERSION               : Override to use a specific branch/commit/tag/release to build the image"
 	@echo "KAFKA_ONOS_VERSION        : Override to use a specific branch/commit/tag/release to build the image"
 	@echo "FABRIC_TNA_VERSION        : Override to use a specific branch/commit/tag/release to build the image"
@@ -171,29 +166,6 @@ trellis-t3: ## : Checkout trellis-t3 code
 	fi
 
 trellis-t3-build: mvn_settings.xml local-apps trellis-t3  ## : Builds trellis-t3 using local app or mvn
-	@./app-build.sh $@
-
-fabric-tofino: ## : Checkout fabric-tofino code
-	if [ ! -d "fabric-tofino" ]; then \
-		git clone ${FABRIC_TOFINO_REPO}; \
-	fi
-
-	@modified=$$(cd ${FABRIC_TOFINO_ROOT} && git status --porcelain); \
-	if [ ! -z "$${modified}" ]; then \
-		echo "Unable to checkout, you have pending changes in fabric-tofino repository"; \
-		exit 1; \
-	fi
-
-	cd ${FABRIC_TOFINO_ROOT} && git remote update
-
-	if ! (cd ${FABRIC_TOFINO_ROOT} && (git checkout origin/${FABRIC_TOFINO_VERSION} || git checkout ${FABRIC_TOFINO_VERSION})); then \
-	if ! (cd ${FABRIC_TOFINO_ROOT} && git fetch ${FABRIC_TOFINO_REPO} ${FABRIC_TOFINO_VERSION} && git checkout FETCH_HEAD); then \
-		echo "Unable to fetch the changes from the fabric-tofino repository"; \
-		exit 1; \
-	fi \
-	fi
-
-fabric-tofino-build: mvn_settings.xml local-apps fabric-tofino  ## : Builds fabric-tofino using local app or mvn
 	@./app-build.sh $@
 
 up4: ## : Checkout up4 code
@@ -264,9 +236,9 @@ fabric-tna: ## : Checkout fabric-tna code
 fabric-tna-build: mvn_settings.xml local-apps fabric-tna  ## : Builds fabric-tna using local app
 	@./app-build.sh $@
 
-apps: trellis-control trellis-t3 fabric-tofino up4 kafka-onos fabric-tna ## : downloads commits, files, and refs from remotes
+apps: trellis-control trellis-t3 up4 kafka-onos fabric-tna ## : downloads commits, files, and refs from remotes
 
-apps-build: trellis-control-build trellis-t3-build fabric-tofino-build up4-build kafka-onos-build fabric-tna-build ## : Build the onos apps
+apps-build: trellis-control-build trellis-t3-build up4-build kafka-onos-build fabric-tna-build ## : Build the onos apps
 
 onos: ## : Checkout onos code
 	if [ ! -d "onos" ]; then \
@@ -309,7 +281,6 @@ tost-build: ## : Builds the tost docker image
     --build-arg org_onosproject_onos_version="$(shell cd ${ONOS_ROOT} && git rev-parse HEAD)"\
     --build-arg org_onosproject_trellis_control_version="$(shell cd ${TRELLIS_CONTROL_ROOT} && git rev-parse HEAD)"\
     --build-arg org_onosproject_trellis_t3_version="$(shell cd ${TRELLIS_T3_ROOT} && git rev-parse HEAD)"\
-    --build-arg org_opencord_fabric_tofino_version="$(shell cd ${FABRIC_TOFINO_ROOT} && git rev-parse HEAD)"\
     --build-arg org_omecproject_up4_version="$(shell cd ${UP4_ROOT} && git rev-parse HEAD)"\
     --build-arg org_opencord_kafka_onos_version="$(shell cd ${KAFKA_ONOS_ROOT} && git rev-parse HEAD)"\
     --build-arg org_stratumproject_fabric_tna_version="$(shell cd ${FABRIC_TNA_ROOT} && git rev-parse HEAD)"\
@@ -331,7 +302,6 @@ clean: ## : Deletes any locally copied files or artifacts
 	rm -rf ${ONOS_ROOT}
 	rm -rf ${TRELLIS_CONTROL_ROOT}
 	rm -rf ${TRELLIS_T3_ROOT}
-	rm -rf ${FABRIC_TOFINO_ROOT}
 	rm -rf ${UP4_ROOT}
 	rm -rf ${KAFKA_ONOS_ROOT}
 	rm -rf ${FABRIC_TNA_ROOT}

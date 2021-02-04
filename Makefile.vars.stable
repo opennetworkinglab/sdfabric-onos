@@ -29,7 +29,6 @@
 export ONOS_VERSION            ?= 2.5.1
 export TRELLIS_CONTROL_VERSION ?= a3989be6892ec25e99a2caf7b63ea4226dfda39d
 export TRELLIS_T3_VERSION      ?= 4fd3b46d76d1738c3d69d5fdc56603ac77fbfdc0
-export FABRIC_TOFINO_VERSION   ?= e1cf4551b4ab74bb82a7cecf19d197698ffbc1cb
 export UP4_VERSION             ?= 61ba80779a0f38f43da05dea9a124955a596841f
 export KAFKA_ONOS_VERSION      ?= 2.5.0
 export FABRIC_TNA_VERSION      ?= bb46f389ce3800a94c0cf6d5ce5f1a86e97e286f

@@ -24,7 +24,7 @@ make ONOS_VERSION=onos-2.2 onos-build
 make ONOS_VERSION=ref/changes/72/12345/1 onos-build
 ```
 
-Makefile will build also the apps. These are the apps currently integrated in the script: **trellis-control**, **trellis-t3**, **fabric-tofino**, **up4**, **kafka-onos** and **fabric-tna**. For each one, there is a **build** target.
+Makefile will build also the apps. These are the apps currently integrated in the script: **trellis-control**, **trellis-t3**, **up4**, **kafka-onos** and **fabric-tna**. For each one, there is a **build** target.
 
 `appname-build` builds with the version specified in the `Makefile.vars.DOCKER_TAG`, using the following sources in order: (1) Maven central (for released versions or snapshots); (2) Local source code (for local branch not yet pushed); (3) Gerrit/Github (for pending review in the form of refs/changes/... or pending pull request). As a prerequisite, the script prepares `mvn_settings.xml` file, creates the `local-apps` folder and checks out the code if it is not present (relies on `appname` target). **APPNAME_VERSION**, defined in `Makefile.vars.DOCKER_TAG` file, can be overridden at runtime.
 
@@ -37,11 +37,6 @@ make trellis-control-build
 ```sh
 # Build up4 app from the source code.
 make up4-build
-```
-
-```sh
-# Build fabric-tofino app from the tag 1.1.0.
-make FABRIC_TOFINO_VERSION=1.1.0 fabric-tofino-build
 ```
 
 `apps-build` is an additional target that automates the build process of the apps building one by one all the apps.

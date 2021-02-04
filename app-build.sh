@@ -42,15 +42,6 @@ TRELLIS_T3_ARTIFACTID=t3-app
 TRELLIS_T3_ARTIFACT=${TRELLIS_T3_GROUPID}:${TRELLIS_T3_ARTIFACTID}
 TRELLIS_T3_OAR=${TRELLIS_T3_ROOT}/app/target/${TRELLIS_T3_ARTIFACTID}-${TRELLIS_T3_VERSION}.oar
 
-# Fabric-tofino related vars
-FABRIC_TOFINO_GROUPID=org.opencord
-FABRIC_TOFINO_ARTIFACTID=fabric-tofino
-FABRIC_TOFINO_ARTIFACT=${FABRIC_TOFINO_GROUPID}:${FABRIC_TOFINO_ARTIFACTID}
-FABRIC_TOFINO_TARGETS=(fabric-spgw)
-FABRIC_TOFINO_SDE_DOCKER_IMG=opennetworking/bf-sde:9.0.0-p4c
-FABRIC_TOFINO_P4CFLAGS="-DS1U_SGW_PREFIX='(8w192++8w0++8w0++8w0)' -DS1U_SGW_PREFIX_LEN=8"
-FABRIC_TOFINO_OAR=${FABRIC_TOFINO_ROOT}/target/${FABRIC_TOFINO_ARTIFACTID}-${FABRIC_TOFINO_VERSION}.oar
-
 # UP4 related vars
 UP4_GROUPID=org.omecproject
 UP4_ARTIFACTID=up4-app
@@ -162,25 +153,6 @@ function trellis-t3-build {
 		TRELLIS_T3_OAR="${TRELLIS_T3_ROOT}"/app/target/"${TRELLIS_T3_ARTIFACTID}"-"${PROJECT_VERSION}".oar
 	fi
 	cp "${TRELLIS_T3_OAR}" "${LOCAL_APPS}"/
-}
-
-function fabric-tofino-build {
-	# This workaround is temporary - typically we need to build only the pipeconf
-	cd "${FABRIC_TOFINO_ROOT}" || exit 1 && make "${FABRIC_TOFINO_TARGETS[@]}" SDE_DOCKER_IMG="${FABRIC_TOFINO_SDE_DOCKER_IMG}" P4CFLAGS="${FABRIC_TOFINO_P4CFLAGS}"
-	cd ../
-	build_app "${FABRIC_TOFINO_ROOT}"/target \
-	"${FABRIC_TOFINO_ROOT}"/ "fabric-tofino" \
-	"${FABRIC_TOFINO_ARTIFACT}" "${FABRIC_TOFINO_VERSION}" \
-	"target" "${FABRIC_TOFINO_OAR}" "${FABRIC_TOFINO_REPO}"
-	if [ "$MVN" -eq "0" ]; then
-		extract_version "${FABRIC_TOFINO_ROOT}"
-		FABRIC_TOFINO_OAR="${FABRIC_TOFINO_ROOT}"/target/"${FABRIC_TOFINO_ARTIFACTID}"-"${PROJECT_VERSION}".oar
-	fi
-	cp "${FABRIC_TOFINO_OAR}" "${LOCAL_APPS}"/
-	# Extra step to avoid build failure; clean up artifacts to ensure
-	# the release process won't complain about uncommitted changes.
-	cd "${FABRIC_TOFINO_ROOT}" || exit 1 && git checkout .
-	cd ../
 }
 
 function up4-build {

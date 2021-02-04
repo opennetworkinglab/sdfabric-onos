@@ -5,7 +5,6 @@ local-apps/
 onos/
 trellis-control/
 trellis-t3/
-fabric-tofino/
 up4/
 kafka-onos/
 fabric-tna/
