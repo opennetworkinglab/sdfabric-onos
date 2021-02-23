@@ -60,7 +60,6 @@ FABRIC_TNA_GROUPID=org.stratumproject
 FABRIC_TNA_ARTIFACTID=fabric-tna
 FABRIC_TNA_ARTIFACT=${FABRIC_TNA_GROUPID}:${FABRIC_TNA_ARTIFACTID}
 FABRIC_TNA_TARGETS=(fabric fabric-spgw fabric-int fabric-spgw-int)
-FABRIC_TNA_SDE_DOCKER_IMG=opennetworking/bf-sde:9.2.0-p4c
 FABRIC_TNA_OAR=${FABRIC_TNA_ROOT}/target/${FABRIC_TNA_ARTIFACTID}-${FABRIC_TNA_VERSION}.oar
 
 set -eu -o pipefail
@@ -185,7 +184,7 @@ function kafka-onos-build {
 
 function fabric-tna-build {
 	# This workaround is temporary - typically we need to build only the pipeconf
-	cd "${FABRIC_TNA_ROOT}" || exit 1 && make "${FABRIC_TNA_TARGETS[@]}" SDE_DOCKER_IMG="${FABRIC_TNA_SDE_DOCKER_IMG}"
+	cd "${FABRIC_TNA_ROOT}" || exit 1 && make "${FABRIC_TNA_TARGETS[@]}"
 	cd ../
 	build_app "${FABRIC_TNA_ROOT}"/target \
 	"${FABRIC_TNA_ROOT}"/ "fabric-tna" \
