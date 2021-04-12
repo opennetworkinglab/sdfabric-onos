@@ -71,7 +71,6 @@ ARG org_onosproject_onos_version=unknown
 ARG org_onosproject_trellis_control_version=unknown
 ARG org_onosproject_trellis_t3_version=unknown
 ARG org_omecproject_up4_version=unknown
-ARG org_opencord_kafka_onos_version=unknown
 ARG org_stratumproject_fabric_tna_version=unknown
 
 LABEL org.label-schema.schema-version=1.0 \
@@ -84,5 +83,4 @@ LABEL org.label-schema.schema-version=1.0 \
       org.onosproject.trellis-control.version=$org_onosproject_trellis_control_version \
       org.onosproject.trellis-t3.version=$org_onosproject_trellis_t3_version \
       org.omecproject.up4.version=$org_omecproject_up4_version \
-      org.opencord.kafka-onos.version=$org_opencord_kafka_onos_version \
       org.stratumproject.fabric-tna.version=$org_stratumproject_fabric_tna_version

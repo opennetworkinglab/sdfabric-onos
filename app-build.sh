@@ -49,12 +49,6 @@ UP4_ARTIFACT=${UP4_GROUPID}:${UP4_ARTIFACTID}
 UP4_TARGETS=_prepare_app_build
 UP4_OAR=${UP4_ROOT}/app/app/target/${UP4_ARTIFACTID}-${UP4_VERSION}.oar
 
-# Kafka-onos related vars
-KAFKA_ONOS_GROUPID=org.opencord
-KAFKA_ONOS_ARTIFACTID=kafka
-KAFKA_ONOS_ARTIFACT=${KAFKA_ONOS_GROUPID}:${KAFKA_ONOS_ARTIFACTID}
-KAFKA_ONOS_OAR=${KAFKA_ONOS_ROOT}/target/${KAFKA_ONOS_ARTIFACTID}-${KAFKA_ONOS_VERSION}.oar
-
 # Fabric-tna related vars
 FABRIC_TNA_GROUPID=org.stratumproject
 FABRIC_TNA_ARTIFACTID=fabric-tna
@@ -168,18 +162,6 @@ function up4-build {
 		UP4_OAR="${UP4_ROOT}"/app/app/target/"${UP4_ARTIFACTID}"-"${PROJECT_VERSION}".oar
 	fi
 	cp "${UP4_OAR}" "${LOCAL_APPS}"/
-}
-
-function kafka-onos-build {
-	build_app "${KAFKA_ONOS_ROOT}"/target \
-	"${KAFKA_ONOS_ROOT}"/ "kafka-onos" \
-	"${KAFKA_ONOS_ARTIFACT}" "${KAFKA_ONOS_VERSION}" \
-	"target" "${KAFKA_ONOS_OAR}" "${KAFKA_ONOS_REPO}"
-	if [ "$MVN" -eq "0" ]; then
-		extract_version "${KAFKA_ONOS_ROOT}"
-		KAFKA_ONOS_OAR="${KAFKA_ONOS_ROOT}"/target/"${KAFKA_ONOS_ARTIFACTID}"-"${PROJECT_VERSION}".oar
-	fi
-	cp "${KAFKA_ONOS_OAR}" "${LOCAL_APPS}"/
 }
 
 function fabric-tna-build {

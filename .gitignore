@@ -6,7 +6,6 @@ onos/
 trellis-control/
 trellis-t3/
 up4/
-kafka-onos/
 fabric-tna/
 .m2/
 mvn_settings.xml
