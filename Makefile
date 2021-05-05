@@ -26,6 +26,7 @@ DOCKER_REPOSITORY            ?=
 DOCKER_BUILD_ARGS            ?=
 DOCKER_TAG                   ?= stable
 DOCKER_TAG_BUILD_DATE        ?=
+DOCKER_TAG_PROFILER          ?=
 
 # Docker labels. Only set ref and commit date if committed
 DOCKER_LABEL_VCS_URL         ?= $(shell git remote get-url $(shell git remote))
@@ -54,14 +55,16 @@ SHELLCHECK_TAG=v0.7.1
 SHELLCHECK_IMAGE=koalaman/shellcheck:${SHELLCHECK_TAG}
 
 # ONOS related
-ONOS_IMAGENAME               := tost-onos:${DOCKER_TAG}${DOCKER_TAG_BUILD_DATE}
+ONOS_IMAGENAME               := tost-onos:${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}
 export ONOS_ROOT             := $(shell pwd)/onos
 ONOS_REPO                    := https://gerrit.onosproject.org/onos
 ONOS_PROFILE                 := "tost"
 KARAF_VERSION                := 4.2.9
+PROFILER                     ?=
+ONOS_YOURKIT                 := 2021.3-b230
 
 # TOST related
-TOST_IMAGENAME               := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}tost:${DOCKER_TAG}${DOCKER_TAG_BUILD_DATE}
+TOST_IMAGENAME               := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}tost:${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}
 export LOCAL_APPS            := local-apps
 
 # Trellis-Control related
@@ -235,19 +238,29 @@ onos: ## : Checkout onos code
 	fi
 
 onos-build: onos ## : Builds the tost-onos docker image
-	# Set some env variables
+ifeq ($(PROFILER),true)
+	# profiler enabled
+	cd ${ONOS_ROOT} && \
+	. tools/build/envDefaults && \
+	docker build . -t ${ONOS_IMAGENAME} \
+	--build-arg PROFILE=${ONOS_PROFILE} \
+	--build-arg ONOS_YOURKIT=${ONOS_YOURKIT} \
+	-f tools/dev/Dockerfile-yourkit
+else
+	# profiler not enabled
 	cd ${ONOS_ROOT} && \
 	. tools/build/envDefaults && \
 	docker build . -t ${ONOS_IMAGENAME} \
 	--build-arg PROFILE=${ONOS_PROFILE}
+endif
 
 tost-build: ## : Builds the tost docker image
 	docker build $(DOCKER_BUILD_ARGS) \
     -t ${TOST_IMAGENAME} \
-    --build-arg DOCKER_TAG="${DOCKER_TAG}${DOCKER_TAG_BUILD_DATE}" \
+    --build-arg DOCKER_TAG="${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}" \
     --build-arg LOCAL_APPS=${LOCAL_APPS} \
     --build-arg KARAF_VERSION=${KARAF_VERSION} \
-    --build-arg org_label_schema_version="${DOCKER_TAG}${DOCKER_TAG_BUILD_DATE}" \
+    --build-arg org_label_schema_version="${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}" \
     --build-arg org_label_schema_vcs_url="${DOCKER_LABEL_VCS_URL}" \
     --build-arg org_label_schema_vcs_ref="${DOCKER_LABEL_VCS_REF}" \
     --build-arg org_label_schema_build_date="${DOCKER_LABEL_BUILD_DATE}" \
