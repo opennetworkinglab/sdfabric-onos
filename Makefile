@@ -62,6 +62,7 @@ ONOS_PROFILE                 := "tost"
 KARAF_VERSION                := 4.2.9
 PROFILER                     ?=
 ONOS_YOURKIT                 := 2021.3-b230
+USE_ONOS_BAZEL_OUTPUT        ?=
 
 # TOST related
 TOST_IMAGENAME               := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}tost:${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}
@@ -246,6 +247,12 @@ ifeq ($(PROFILER),true)
 	--build-arg PROFILE=${ONOS_PROFILE} \
 	--build-arg ONOS_YOURKIT=${ONOS_YOURKIT} \
 	-f tools/dev/Dockerfile-yourkit
+else ifeq ($(USE_ONOS_BAZEL_OUTPUT),true)
+	# profiler not enabled, using local bazel output
+	cd ${ONOS_ROOT} && \
+	. tools/build/envDefaults && \
+	bazel build onos --define profile=${ONOS_PROFILE}
+	docker build -t ${ONOS_IMAGENAME} -f ${ONOS_ROOT}/tools/dev/Dockerfile-bazel ${ONOS_ROOT}/bazel-bin
 else
 	# profiler not enabled
 	cd ${ONOS_ROOT} && \
