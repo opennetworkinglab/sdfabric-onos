@@ -30,4 +30,4 @@ export ONOS_VERSION            ?= b4120ff8d320e89a0eb9cc6b8c7580918e4d8f89
 export TRELLIS_CONTROL_VERSION ?= 6e184b9f205348016fcb044e1a11ce3df2d67149
 export TRELLIS_T3_VERSION      ?= 4fd3b46d76d1738c3d69d5fdc56603ac77fbfdc0
 export UP4_VERSION             ?= 063208b6b2ba72bb8838e4d7cae6e3df66c8541d
-export FABRIC_TNA_VERSION      ?= 7dc6e34bf0fccc50de8a90ddce561a6ff9d9d91b
+export FABRIC_TNA_VERSION      ?= fe907d3e595f1c69ae8f9e0d020e9ba67f35e583
