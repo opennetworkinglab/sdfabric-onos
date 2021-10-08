@@ -27,7 +27,7 @@
 # (3) Fetch from Gerrit/Github (pending review in the form of refs/changes/... or pending pull request);
 
 export ONOS_VERSION            ?= onos-2.5
-export TRELLIS_CONTROL_VERSION ?= 3.0.1-SNAPSHOT
+export TRELLIS_CONTROL_VERSION ?= 3.1.0-SNAPSHOT
 export TRELLIS_T3_VERSION      ?= 4.0.0-SNAPSHOT
 export UP4_VERSION             ?= master
 export FABRIC_TNA_VERSION      ?= main

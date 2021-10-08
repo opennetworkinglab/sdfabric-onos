@@ -1,6 +1,10 @@
 # TOST ONOS Development Build Environment
 
-Docker build environment capable of producing a version of **ONOS** and needed apps that can run with **TOST**. Typically the **ONOS** restful api would be used to include apps after **ONOS** is started.
+Docker build environment capable of producing a version of **ONOS** and needed apps that make the SD-Fabric control plane.
+
+The name TOST comes from the early days of the SD-Fabric project. It stands for Trellis ONOS Stratum Tofino. We keep this name for backward compatibility.
+
+Typically the **ONOS** restful api would be used to include apps after **ONOS** is started.
 
 ## Build
 
