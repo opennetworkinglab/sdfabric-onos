@@ -127,10 +127,21 @@ function trellis-control-build {
 	"app/target" "${TRELLIS_CONTROL_OAR}" "${TRELLIS_CONTROL_REPO}"
 	# If MVN was not successful - built from sources
 	if [ "$MVN" -eq "0" ]; then
+		# When building from source api and app jars are automatically put into the local .m2 folder.
 		# Update VERSION
 		extract_version "${TRELLIS_CONTROL_ROOT}"
 		# Update OAR
 		TRELLIS_CONTROL_OAR="${TRELLIS_CONTROL_ROOT}"/app/target/"${TRELLIS_CONTROL_ARTIFACTID}"-"${PROJECT_VERSION}".oar
+	else
+		# Fetch trellis-control api and app JARs that may be needed to build other apps when using local maven cache (i.e., T3 and fabric-tna).
+		# Fetched jars will be places in the local .m2 folder.
+		docker run "${IT}" --rm -v "${CURRENT_DIR}":/root -w /root/"trellis-control" "${DOCKER_MVN_IMAGE}" \
+			bash -c "mvn dependency:copy -Dartifact=${TRELLIS_CONTROL_GROUPID}:segmentrouting-api:${TRELLIS_CONTROL_VERSION} \
+			-Dmdep.useBaseVersion=true -Dmdep.overWriteReleases=true -Dmdep.overWriteSnapshots=true -f dependencies.xml \
+			-s mvn_settings.xml; \
+			mvn dependency:copy -Dartifact=${TRELLIS_CONTROL_GROUPID}:segmentrouting-app:${TRELLIS_CONTROL_VERSION} \
+			-Dmdep.useBaseVersion=true -Dmdep.overWriteReleases=true -Dmdep.overWriteSnapshots=true -f dependencies.xml \
+			-s mvn_settings.xml"
 	fi
 	# Final step requires to move the oar to the folder used by the tost docker file. Moreover, it will help catch up errors
 	cp "${TRELLIS_CONTROL_OAR}" "${LOCAL_APPS}"/

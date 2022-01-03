@@ -63,6 +63,7 @@ KARAF_VERSION                := 4.2.9
 PROFILER                     ?=
 ONOS_YOURKIT                 := 2021.3-b230
 USE_ONOS_BAZEL_OUTPUT        ?=
+USE_LOCAL_SNAPSHOT_ARTIFACTS ?=
 
 # TOST related
 TOST_IMAGENAME               := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}tost:${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}
@@ -142,7 +143,7 @@ trellis-control: ## : Checkout trellis-control code
 	fi \
 	fi
 
-trellis-control-build: mvn_settings.xml local-apps trellis-control  ## : Builds trellis-control using local app or mvn
+trellis-control-build: mvn_settings.xml .onos-publish-local local-apps trellis-control  ## : Builds trellis-control using local app or mvn
 	@./app-build.sh $@
 
 trellis-t3: ## : Checkout trellis-t3 code
@@ -164,7 +165,7 @@ trellis-t3: ## : Checkout trellis-t3 code
 	fi \
 	fi
 
-trellis-t3-build: mvn_settings.xml local-apps trellis-t3  ## : Builds trellis-t3 using local app or mvn
+trellis-t3-build: mvn_settings.xml .onos-publish-local local-apps trellis-t3  ## : Builds trellis-t3 using local app or mvn
 	@./app-build.sh $@
 
 up4: ## : Checkout up4 code
@@ -187,7 +188,7 @@ up4: ## : Checkout up4 code
 	fi \
 	fi
 
-up4-build: mvn_settings.xml local-apps up4  ## : Builds up4 using local app
+up4-build: mvn_settings.xml .onos-publish-local local-apps up4  ## : Builds up4 using local app
 	@./app-build.sh $@
 
 fabric-tna: ## : Checkout fabric-tna code
@@ -210,7 +211,7 @@ fabric-tna: ## : Checkout fabric-tna code
 	fi \
 	fi
 
-fabric-tna-build: mvn_settings.xml local-apps fabric-tna  ## : Builds fabric-tna using local app
+fabric-tna-build: mvn_settings.xml .onos-publish-local local-apps fabric-tna  ## : Builds fabric-tna using local app
 	@./app-build.sh $@
 
 apps: trellis-control trellis-t3 up4 fabric-tna ## : downloads commits, files, and refs from remotes
@@ -239,6 +240,7 @@ onos: ## : Checkout onos code
 	fi
 
 onos-build: onos ## : Builds the tost-onos docker image
+	rm -rf .onos-publish-local
 ifeq ($(PROFILER),true)
 	# profiler enabled
 	cd ${ONOS_ROOT} && \
@@ -260,6 +262,16 @@ else
 	docker build . -t ${ONOS_IMAGENAME} \
 	--build-arg PROFILE=${ONOS_PROFILE}
 endif
+	make .onos-publish-local
+
+.onos-publish-local:
+ifeq ($(USE_LOCAL_SNAPSHOT_ARTIFACTS),true)
+	@# TODO: build custom docker container with required dependencies instead of installing via publish-local script
+	docker run --rm --entrypoint bash -it -v $(shell pwd)/:/tost \
+	-e ONOS_ROOT=/tost/onos -e MAVEN_REPO=/tost/.m2/repository -w /tost \
+	bitnami/minideb:buster ./publish-local.sh
+endif
+	touch .onos-publish-local
 
 tost-build: ## : Builds the tost docker image
 	docker build $(DOCKER_BUILD_ARGS) \
@@ -299,5 +311,6 @@ clean: ## : Deletes any locally copied files or artifacts
 	rm -rf ${LOCAL_APPS}
 	rm -rf .m2
 	rm -rf mvn_settings.xml
+	rm -rf .onos-publish-local
 
 # end file

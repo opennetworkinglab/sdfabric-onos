@@ -57,6 +57,21 @@ Finally, the last build target is `tost-build`. It builds a `tost` monolithic im
 make tost-build
 ```
 
+### Build with custom ONOS API changes
+When doing ONOS API changes, we don't want to fetch ONOS maven artifacts from the
+remote sonatype SNAPSHOT repository. To do so, we need to set an environment variable
+(`USE_LOCAL_SNAPSHOT_ARTIFACTS=true`) and follow a specific order when building the
+`tost` image.
+
+1. ONOS (this will also publish the ONOS maven artifacts in  the local `.m2` folder):
+   `USE_LOCAL_SNAPSHOT_ARTIFACTS=true [DOCKER_TAG=master] make onos-build`
+2. Trellis Control, UP4:
+   `USE_LOCAL_SNAPSHOT_ARTIFACTS=true [DOCKER_TAG=master] make trellis-control-build up4-build`
+3. Trellis T3, Fabric TNA:
+   `USE_LOCAL_SNAPSHOT_ARTIFACTS=true [DOCKER_TAG=master] make fabric-tna-build trellis-t3-build`
+4. TOST:
+   `USE_LOCAL_SNAPSHOT_ARTIFACTS=true [DOCKER_TAG=master] make tost-build`
+
 ## Update
 
 Use `apps` or `appname` targets to downloads commits, files, and refs from remotes.

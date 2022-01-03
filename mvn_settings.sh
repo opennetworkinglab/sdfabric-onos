@@ -52,6 +52,7 @@ under the License.
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
   <!--PROXY-->
   <!--EXTRA-->
+  <!--MIRRORS-->
 </settings>
 EOF
 
@@ -80,6 +81,22 @@ if [ "$http_proxy$https_proxy" != "" ] ; then
 
   sed -i '/<!--PROXY-->/r mvn_settings.proxy.xml' mvn_settings.xml
   rm mvn_settings.proxy.xml
+fi
+
+if [ "$USE_LOCAL_SNAPSHOT_ARTIFACTS" == "true" ]; then
+  # When using local SNAPSHOT artifacts, we need to prevent maven to fetch from the Sonatype repository.
+  # However, we need to point to a valid maven repository otherwise maven fails. For this reason we
+  # mirror snapshots to maven central (that won't contain any SNAPSHOT artifacts).
+  echo "    <mirrors>
+      <mirror>
+        <id>central_snapshots</id>
+        <name>central_snapshots</name>
+        <url>https://repo.maven.apache.org/maven2</url>
+        <mirrorOf>snapshots</mirrorOf>
+      </mirror>
+    </mirrors>" >> mvn_settings.mirror.xml
+  sed -i '' -e '/<!--MIRRORS-->/r mvn_settings.mirror.xml' mvn_settings.xml
+  rm mvn_settings.mirror.xml
 fi
 
 if [ -f mvn_settings.extra.xml ] ; then

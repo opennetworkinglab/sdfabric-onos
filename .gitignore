@@ -9,3 +9,4 @@ up4/
 fabric-tna/
 .m2/
 mvn_settings.xml
+.onos-publish-local
