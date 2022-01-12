@@ -72,6 +72,46 @@ remote sonatype SNAPSHOT repository. To do so, we need to set an environment var
 4. TOST:
    `USE_LOCAL_SNAPSHOT_ARTIFACTS=true [DOCKER_TAG=master] make tost-build`
 
+### Build with custom changes in the repositories
+It is not always possible to build images with the latests changes, as sometimes hotfixes need to be delivered quickly in order to fix the issues identified in production. Hereafter the steps to build images with custom changes not yet merged - please note that we don't have the full flexibility provided by a separated “production” branch which means that sometimes the following workflow could not be realizable.
+
+1. `ONOS`
+1.1 Identify a stable commit that has been well tested and do reset to that commit
+1.2 Take a note about the `SNAPSHOT` version
+1.3 Organize the hotfixes as a train (on top of each other)
+1.4 Rebase the train on top of the stable commit
+1.5 Write the `ref/changes` path of the tip patch in the `Makefile.vars.stable` file
+
+2. `trellis-control`
+2.1 Identify a stable commit that has been well tested and do reset to that commit
+2.2 Take a note about the `SNAPSHOT` version
+2.3 Organize the hotfixes as a train (on top of each other)
+2.4 Rebase the train on top of the stable commit
+2.5 Update the `onos-dependencies` to the `ONOS SNAPSHOT` version and push a review
+2.6 Write the `ref/changes` path of the step `2.5` in the `Makefile.vars.stable` file
+
+3. `trellis-t3`
+3.1 Identify a stable commit that has been well tested and do reset to that commit
+3.2 Organize the hotfixes as a train (on top of each other)
+3.3 Rebase the train on top of the stable commit
+3.4 Update the `onos-dependencies` to the `ONOS SNAPSHOT` version and the `trellis.api` version to the `trellis-control SNAPSHOT` version and push a review
+3.5 Write the `ref/changes` path of the step `3.4` in the `Makefile.vars.stable` file
+
+4. `fabric-tna`
+4.1 Identify a stable commit that has been well tested and do reset to that commit
+4.2 Create a branch out of the stable commit; update the `onos-dependencies` to the `ONOS SNAPSHOT` version and the `trellis-api` version to the `trellis-control SNAPSHOT` version and push a patch
+4.3 Merge all the hotfixes in the branch created at the step `4.2` and push a new commit
+4.4 Write the branch name created at the step `4.2` in the `Makefile.vars.stable` file, alternatively the PR number using `pull/#PR/head`
+
+5. `up4`
+5.1 Identify a stable commit that has been well tested and do reset to that commit
+5.2 Create a branch out of the stable commit; update the `onos-dependencies` to the `ONOS SNAPSHOT` version and push a patch
+5.3 Merge all the hotfixes in the branch created at the step `5.2` and push a new commit
+5.4 Write the branch name created at the step `5.2` in the `Makefile.vars.stable` file, alternatively the PR number using `pull/#PR/head`
+
+6. Build a stable image with the `docker-build` target using the locally built maven artifacts
+    `USE_LOCAL_SNAPSHOT_ARTIFACTS=true DOCKER_TAG=stable make docker-build`
+
 ## Update
 
 Use `apps` or `appname` targets to downloads commits, files, and refs from remotes.
