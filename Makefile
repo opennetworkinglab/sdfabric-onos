@@ -22,7 +22,7 @@ THIS_MAKE                    := $(lastword $(MAKEFILE_LIST))
 
 # Docker related
 DOCKER_REGISTRY              ?=
-DOCKER_REPOSITORY            ?=
+DOCKER_REPOSITORY            ?= sdfabric-onos
 DOCKER_BUILD_ARGS            ?=
 DOCKER_TAG                   ?= stable
 DOCKER_TAG_BUILD_DATE        ?=
@@ -69,7 +69,7 @@ USE_ONOS_BAZEL_OUTPUT        ?=
 USE_LOCAL_SNAPSHOT_ARTIFACTS ?=
 
 # TOST related
-TOST_IMAGENAME               := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}tost:${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}
+TOST_IMAGENAME               := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}:${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}
 export LOCAL_APPS            := local-apps
 
 # Trellis-Control related
