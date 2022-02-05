@@ -143,7 +143,7 @@ function trellis-control-build {
 			-Dmdep.useBaseVersion=true -Dmdep.overWriteReleases=true -Dmdep.overWriteSnapshots=true -f dependencies.xml \
 			-s mvn_settings.xml"
 	fi
-	# Final step requires to move the oar to the folder used by the tost docker file. Moreover, it will help catch up errors
+	# Final step requires to move the oar to the folder used by Dockerfile. Moreover, it will help catch up errors
 	cp "${TRELLIS_CONTROL_OAR}" "${LOCAL_APPS}"/
 }
 

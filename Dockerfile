@@ -16,9 +16,8 @@
 
 ARG DOCKER_TAG
 
-# We start from an onos image and install the apps.
-# We need at least an onos image built with 'tost' profile
-FROM tost-onos:${DOCKER_TAG} as install
+# We start from a base onos image and install the apps.
+FROM onos-base:${DOCKER_TAG} as install
 
 ARG KARAF_VERSION
 ARG LOCAL_APPS
@@ -49,7 +48,7 @@ RUN ./app-install.sh
 ARG DOCKER_TAG
 
 # Create the final image coping over the installed applications from the install stage
-FROM tost-onos:${DOCKER_TAG}
+FROM onos-base:${DOCKER_TAG}
 
 ARG KARAF_VERSION
 
@@ -74,7 +73,7 @@ ARG org_omecproject_up4_version=unknown
 ARG org_stratumproject_fabric_tna_version=unknown
 
 LABEL org.label-schema.schema-version=1.0 \
-      org.label-schema.name=tost \
+      org.label-schema.name=sdfabric-onos \
       org.label-schema.version=$org_label_schema_version \
       org.label-schema.vcs-url=$org_label_schema_vcs_url \
       org.label-schema.vcs-ref=$org_label_schema_vcs_ref \

@@ -22,7 +22,7 @@ THIS_MAKE                    := $(lastword $(MAKEFILE_LIST))
 
 # Docker related
 DOCKER_REGISTRY              ?=
-DOCKER_REPOSITORY            ?= sdfabric-onos
+DOCKER_REPOSITORY            ?= opennetworking/sdfabric-onos
 DOCKER_BUILD_ARGS            ?=
 DOCKER_TAG                   ?= stable
 DOCKER_TAG_BUILD_DATE        ?=
@@ -53,24 +53,25 @@ else
   $(error You must define properly the DOCKER_TAG variable)
 endif
 
+FINAL_IMAGENAME               := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}:${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}
+export LOCAL_APPS             := local-apps
 
 # Shellcheck related
 SHELLCHECK_TAG=v0.7.1
 SHELLCHECK_IMAGE=koalaman/shellcheck:${SHELLCHECK_TAG}
 
 # ONOS related
-ONOS_IMAGENAME               := tost-onos:${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}
+ONOS_BASE_IMAGENAME          := onos-base:${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}
 export ONOS_ROOT             := $(shell pwd)/onos
 ONOS_REPO                    := https://gerrit.onosproject.org/onos
+# TOST is the old name of SD-Fabric, it stands for Trellis ONOS Stratum Tofino.
+# This profile contains the minimal set of ONOS built-in apps required to control
+# the SD-Fabric stack.
 ONOS_PROFILE                 := "tost"
 PROFILER                     ?=
 ONOS_YOURKIT                 := 2021.3-b230
 USE_ONOS_BAZEL_OUTPUT        ?=
 USE_LOCAL_SNAPSHOT_ARTIFACTS ?=
-
-# TOST related
-TOST_IMAGENAME               := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}:${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}
-export LOCAL_APPS            := local-apps
 
 # Trellis-Control related
 export TRELLIS_CONTROL_ROOT  := $(shell pwd)/trellis-control
@@ -242,13 +243,13 @@ onos: ## : Checkout onos code
 	fi \
 	fi
 
-onos-build: onos ## : Builds the tost-onos docker image
+onos-build: onos ## : Builds the onos-base docker image
 	rm -rf .onos-publish-local
 ifeq ($(PROFILER),true)
 	# profiler enabled
 	cd ${ONOS_ROOT} && \
 	. tools/build/envDefaults && \
-	docker build . -t ${ONOS_IMAGENAME} \
+	docker build . -t ${ONOS_BASE_IMAGENAME} \
 	--build-arg PROFILE=${ONOS_PROFILE} \
 	--build-arg ONOS_YOURKIT=${ONOS_YOURKIT} \
 	-f tools/dev/Dockerfile-yourkit
@@ -257,12 +258,12 @@ else ifeq ($(USE_ONOS_BAZEL_OUTPUT),true)
 	cd ${ONOS_ROOT} && \
 	. tools/build/envDefaults && \
 	bazel build onos --define profile=${ONOS_PROFILE}
-	docker build -t ${ONOS_IMAGENAME} -f ${ONOS_ROOT}/tools/dev/Dockerfile-bazel ${ONOS_ROOT}/bazel-bin
+	docker build -t ${ONOS_BASE_IMAGENAME} -f ${ONOS_ROOT}/tools/dev/Dockerfile-bazel ${ONOS_ROOT}/bazel-bin
 else
 	# profiler not enabled
 	cd ${ONOS_ROOT} && \
 	. tools/build/envDefaults && \
-	docker build . -t ${ONOS_IMAGENAME} \
+	docker build . -t ${ONOS_BASE_IMAGENAME} \
 	--build-arg PROFILE=${ONOS_PROFILE}
 endif
 	make .onos-publish-local
@@ -270,15 +271,15 @@ endif
 .onos-publish-local:
 ifeq ($(USE_LOCAL_SNAPSHOT_ARTIFACTS),true)
 	@# TODO: build custom docker container with required dependencies instead of installing via publish-local script
-	docker run --rm --entrypoint bash -it -v $(shell pwd)/:/tost \
-	-e ONOS_ROOT=/tost/onos -e MAVEN_REPO=/tost/.m2/repository -w /tost \
+	docker run --rm --entrypoint bash -it -v $(shell pwd)/:/src \
+	-e ONOS_ROOT=/src/onos -e MAVEN_REPO=/src/.m2/repository -w /src \
 	bitnami/minideb:buster ./publish-local.sh
 endif
 	touch .onos-publish-local
 
-tost-build: ## : Builds the tost docker image
+package: ## : Builds the sdfabric-onos docker image
 	docker build $(DOCKER_BUILD_ARGS) \
-    -t ${TOST_IMAGENAME} \
+    -t ${FINAL_IMAGENAME} \
     --build-arg DOCKER_TAG="${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}" \
     --build-arg LOCAL_APPS=${LOCAL_APPS} \
     --build-arg KARAF_VERSION=${KARAF_VERSION} \
@@ -291,19 +292,19 @@ tost-build: ## : Builds the tost docker image
     --build-arg org_onosproject_trellis_t3_version="$(shell cd ${TRELLIS_T3_ROOT} && git rev-parse HEAD)"\
     --build-arg org_omecproject_up4_version="$(shell cd ${UP4_ROOT} && git rev-parse HEAD)"\
     --build-arg org_stratumproject_fabric_tna_version="$(shell cd ${FABRIC_TNA_ROOT} && git rev-parse HEAD)"\
-    -f Dockerfile.tost .
+    -f Dockerfile .
 
-onos-push: ## : Pushes the tost-onos docker image to an external repository
-	docker push ${ONOS_IMAGENAME}
+onos-push: ## : Pushes the onos-base docker image to an external repository
+	docker push ${ONOS_BASE_IMAGENAME}
 
-tost-push: ## : Pushes the tost docker image to an external repository
-	docker push ${TOST_IMAGENAME}
+push: ## : Pushes the sdfabric-onos docker image to an external repository
+	docker push ${FINAL_IMAGENAME}
 
 # Used for CI job
-docker-build: check-scripts onos-build apps-build tost-build ## : Builds the tost image
+docker-build: check-scripts onos-build apps-build package ## : Builds the sdfabric-onos image
 
 # User for CD job
-docker-push: tost-push ## : Pushes the tost image
+docker-push: push ## : Pushes the sdfabric-onos Docker image
 
 clean: ## : Deletes any locally copied files or artifacts
 	rm -rf ${ONOS_ROOT}

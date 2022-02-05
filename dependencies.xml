@@ -43,7 +43,7 @@
             <!-- do not use "snapshots" repository name, otherwise when using
               local maven cache it won't work since a fake mirror for snapshot
               is added to the mvn_settings.xml -->
-            <id>snapshots-tost</id>
+            <id>snapshots-sdfabric</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
             <snapshots>
                 <enabled>true</enabled>
