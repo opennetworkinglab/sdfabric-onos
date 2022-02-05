@@ -64,10 +64,8 @@ SHELLCHECK_IMAGE=koalaman/shellcheck:${SHELLCHECK_TAG}
 ONOS_BASE_IMAGENAME          := onos-base:${DOCKER_TAG}${DOCKER_TAG_PROFILER}${DOCKER_TAG_BUILD_DATE}
 export ONOS_ROOT             := $(shell pwd)/onos
 ONOS_REPO                    := https://gerrit.onosproject.org/onos
-# TOST is the old name of SD-Fabric, it stands for Trellis ONOS Stratum Tofino.
-# This profile contains the minimal set of ONOS built-in apps required to control
-# the SD-Fabric stack.
-ONOS_PROFILE                 := "tost"
+# This profile contains the minimal set of ONOS built-in apps required to control SD-Fabric.
+ONOS_PROFILE                 := "sdfabric"
 PROFILER                     ?=
 ONOS_YOURKIT                 := 2021.3-b230
 USE_ONOS_BAZEL_OUTPUT        ?=
