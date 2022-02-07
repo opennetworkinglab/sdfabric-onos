@@ -87,7 +87,7 @@ export UP4_REPO              := git@github.com:omec-project/up4.git
 export FABRIC_TNA_ROOT       := $(shell pwd)/fabric-tna
 export FABRIC_TNA_REPO       := git@github.com:stratum/fabric-tna.git
 
-.PHONY: onos trellis-control trellis-t3 up4 fabric-tna
+.PHONY: onos trellis-control up4 fabric-tna
 
 .SILENT: up4 fabric-tna
 
@@ -216,9 +216,11 @@ fabric-tna: ## : Checkout fabric-tna code
 fabric-tna-build: mvn_settings.xml .onos-publish-local local-apps fabric-tna  ## : Builds fabric-tna using local app
 	@./app-build.sh $@
 
-apps: trellis-control trellis-t3 up4 fabric-tna ## : downloads commits, files, and refs from remotes
+## : downloads commits, files, and refs from remotes. Intentionally leave out t3.
+apps: trellis-control up4 fabric-tna
 
-apps-build: trellis-control-build trellis-t3-build up4-build fabric-tna-build ## : Build the onos apps
+## : Build the onos apps. Intentionally leave out t3.
+apps-build: trellis-control-build up4-build fabric-tna-build
 
 onos: ## : Checkout onos code
 	if [ ! -d "onos" ]; then \
@@ -287,7 +289,6 @@ package: ## : Builds the sdfabric-onos docker image
     --build-arg org_label_schema_build_date="${DOCKER_LABEL_BUILD_DATE}" \
     --build-arg org_onosproject_onos_version="$(shell cd ${ONOS_ROOT} && git rev-parse HEAD)"\
     --build-arg org_onosproject_trellis_control_version="$(shell cd ${TRELLIS_CONTROL_ROOT} && git rev-parse HEAD)"\
-    --build-arg org_onosproject_trellis_t3_version="$(shell cd ${TRELLIS_T3_ROOT} && git rev-parse HEAD)"\
     --build-arg org_omecproject_up4_version="$(shell cd ${UP4_ROOT} && git rev-parse HEAD)"\
     --build-arg org_stratumproject_fabric_tna_version="$(shell cd ${FABRIC_TNA_ROOT} && git rev-parse HEAD)"\
     -f Dockerfile .

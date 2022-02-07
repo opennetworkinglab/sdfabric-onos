@@ -24,7 +24,7 @@ make ONOS_VERSION=onos-2.2 onos-build
 make ONOS_VERSION=ref/changes/72/12345/1 onos-build
 ```
 
-Makefile will build also the apps. These are the apps currently integrated in the script: **trellis-control**, **trellis-t3**, **up4** and **fabric-tna**. For each one, there is a **build** target.
+Makefile will build also the apps. These are the apps currently integrated in the script: **trellis-control**, **up4** and **fabric-tna**. For each one, there is a **build** target.
 
 `appname-build` builds with the version specified in the `Makefile.vars.DOCKER_TAG`, using the following sources in order: (1) Maven central (for released versions or snapshots); (2) Local source code (for local branch not yet pushed); (3) Gerrit/Github (for pending review in the form of refs/changes/... or pending pull request). As a prerequisite, the script prepares `mvn_settings.xml` file, creates the `local-apps` folder and checks out the code if it is not present (relies on `appname` target). **APPNAME_VERSION**, defined in `Makefile.vars.DOCKER_TAG` file, can be overridden at runtime.
 
@@ -63,8 +63,8 @@ final `sdfabric-onos` image.
    `USE_LOCAL_SNAPSHOT_ARTIFACTS=true [DOCKER_TAG=master] make onos-build`
 2. Trellis Control, UP4:
    `USE_LOCAL_SNAPSHOT_ARTIFACTS=true [DOCKER_TAG=master] make trellis-control-build up4-build`
-3. Trellis T3, Fabric TNA:
-   `USE_LOCAL_SNAPSHOT_ARTIFACTS=true [DOCKER_TAG=master] make fabric-tna-build trellis-t3-build`
+3. Fabric TNA:
+   `USE_LOCAL_SNAPSHOT_ARTIFACTS=true [DOCKER_TAG=master] make fabric-tna-build`
 4. Final image (`sdfabric-onos`):
    `USE_LOCAL_SNAPSHOT_ARTIFACTS=true [DOCKER_TAG=master] make package`
 
@@ -86,26 +86,19 @@ It is not always possible to build images with the latests changes, as sometimes
 2.5 Update the `onos-dependencies` to the `ONOS SNAPSHOT` version and push a review
 2.6 Write the `ref/changes` path of the step `2.5` in the `Makefile.vars.stable` file
 
-3. `trellis-t3`
+3. `fabric-tna`
 3.1 Identify a stable commit that has been well tested and do reset to that commit
-3.2 Organize the hotfixes as a train (on top of each other)
-3.3 Rebase the train on top of the stable commit
-3.4 Update the `onos-dependencies` to the `ONOS SNAPSHOT` version and the `trellis.api` version to the `trellis-control SNAPSHOT` version and push a review
-3.5 Write the `ref/changes` path of the step `3.4` in the `Makefile.vars.stable` file
+3.2 Create a branch out of the stable commit; update the `onos-dependencies` to the `ONOS SNAPSHOT` version and the `trellis-api` version to the `trellis-control SNAPSHOT` version and push a patch
+3.3 Merge all the hotfixes in the branch created at the step `4.2` and push a new commit
+3.4 Write the branch name created at the step `4.2` in the `Makefile.vars.stable` file, alternatively the PR number using `pull/#PR/head`
 
-4. `fabric-tna`
+4. `up4`
 4.1 Identify a stable commit that has been well tested and do reset to that commit
-4.2 Create a branch out of the stable commit; update the `onos-dependencies` to the `ONOS SNAPSHOT` version and the `trellis-api` version to the `trellis-control SNAPSHOT` version and push a patch
-4.3 Merge all the hotfixes in the branch created at the step `4.2` and push a new commit
-4.4 Write the branch name created at the step `4.2` in the `Makefile.vars.stable` file, alternatively the PR number using `pull/#PR/head`
+4.2 Create a branch out of the stable commit; update the `onos-dependencies` to the `ONOS SNAPSHOT` version and push a patch
+4.3 Merge all the hotfixes in the branch created at the step `5.2` and push a new commit
+4.4 Write the branch name created at the step `5.2` in the `Makefile.vars.stable` file, alternatively the PR number using `pull/#PR/head`
 
-5. `up4`
-5.1 Identify a stable commit that has been well tested and do reset to that commit
-5.2 Create a branch out of the stable commit; update the `onos-dependencies` to the `ONOS SNAPSHOT` version and push a patch
-5.3 Merge all the hotfixes in the branch created at the step `5.2` and push a new commit
-5.4 Write the branch name created at the step `5.2` in the `Makefile.vars.stable` file, alternatively the PR number using `pull/#PR/head`
-
-6. Build a stable image with the `docker-build` target using the locally built maven artifacts
+5. Build a stable image with the `docker-build` target using the locally built maven artifacts
     `USE_LOCAL_SNAPSHOT_ARTIFACTS=true DOCKER_TAG=stable make docker-build`
 
 ## Update
