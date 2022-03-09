@@ -40,13 +40,9 @@ else
 endif
 
 ifeq ($(DOCKER_TAG),stable)
-# FIXME temporary until stable moves to newer commits
-  KARAF_VERSION := 4.2.9
 # Includes the default ("working") versions of each component
   include ./Makefile.vars.stable
 else ifeq ($(DOCKER_TAG),master)
-# FIXME temporary until stable moves to newer commits
-  KARAF_VERSION := 4.2.14
 # Includes the master versions of each component
   include ./Makefile.vars.master
 else
@@ -70,6 +66,7 @@ PROFILER                     ?=
 ONOS_YOURKIT                 := 2021.3-b230
 USE_ONOS_BAZEL_OUTPUT        ?=
 USE_LOCAL_SNAPSHOT_ARTIFACTS ?=
+KARAF_VERSION                := 4.2.14
 
 # Trellis-Control related
 export TRELLIS_CONTROL_ROOT  := $(shell pwd)/trellis-control
