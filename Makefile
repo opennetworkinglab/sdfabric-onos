@@ -20,6 +20,9 @@ SHELL                        := /bin/bash -e -o pipefail
 # General variables
 THIS_MAKE                    := $(lastword $(MAKEFILE_LIST))
 
+# Allow N build jobs at once
+JOBS                         ?= 2
+
 # Docker related
 DOCKER_REGISTRY              ?=
 DOCKER_REPOSITORY            ?= opennetworking/sdfabric-onos
@@ -249,19 +252,21 @@ ifeq ($(PROFILER),true)
 	docker build . -t ${ONOS_BASE_IMAGENAME} \
 	--build-arg PROFILE=${ONOS_PROFILE} \
 	--build-arg ONOS_YOURKIT=${ONOS_YOURKIT} \
+	--build-arg JOBS=${JOBS} \
 	-f tools/dev/Dockerfile-yourkit
 else ifeq ($(USE_ONOS_BAZEL_OUTPUT),true)
 	# profiler not enabled, using local bazel output
 	cd ${ONOS_ROOT} && \
 	. tools/build/envDefaults && \
-	bazel build onos --define profile=${ONOS_PROFILE}
+	bazel build onos --define profile=${ONOS_PROFILE} --jobs ${JOBS}
 	docker build -t ${ONOS_BASE_IMAGENAME} -f ${ONOS_ROOT}/tools/dev/Dockerfile-bazel ${ONOS_ROOT}/bazel-bin
 else
 	# profiler not enabled
 	cd ${ONOS_ROOT} && \
 	. tools/build/envDefaults && \
 	docker build . -t ${ONOS_BASE_IMAGENAME} \
-	--build-arg PROFILE=${ONOS_PROFILE}
+	--build-arg PROFILE=${ONOS_PROFILE} \
+	--build-arg JOBS=${JOBS}
 endif
 	make .onos-publish-local
 
