@@ -273,7 +273,7 @@ endif
 .onos-publish-local:
 ifeq ($(USE_LOCAL_SNAPSHOT_ARTIFACTS),true)
 	@# TODO: build custom docker container with required dependencies instead of installing via publish-local script
-	docker run --rm --entrypoint bash -it -v $(shell pwd)/:/src \
+	docker run --rm --entrypoint bash -v $(shell pwd)/:/src \
 	-e ONOS_ROOT=/src/onos -e MAVEN_REPO=/src/.m2/repository -w /src \
 	bitnami/minideb:buster ./publish-local.sh
 endif
