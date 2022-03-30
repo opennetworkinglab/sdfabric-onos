@@ -70,6 +70,9 @@ ONOS_YOURKIT                 := 2021.3-b230
 USE_ONOS_BAZEL_OUTPUT        ?=
 USE_LOCAL_SNAPSHOT_ARTIFACTS ?=
 KARAF_VERSION                := 4.2.14
+# We use proprietary tools such as Intel P4 Studio for which we are not allowed
+# to make the output public in CI jobs.
+export SHOW_SENSITIVE_OUTPUT ?= false
 
 # Trellis-Control related
 export TRELLIS_CONTROL_ROOT  := $(shell pwd)/trellis-control

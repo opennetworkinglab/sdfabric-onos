@@ -177,7 +177,7 @@ function up4-build {
 
 function fabric-tna-build {
 	# This workaround is temporary - typically we need to build only the pipeconf
-	cd "${FABRIC_TNA_ROOT}" || exit 1 && make "${FABRIC_TNA_TARGETS[@]}"
+	cd "${FABRIC_TNA_ROOT}" || exit 1 && make "${FABRIC_TNA_TARGETS[@]}" SHOW_SENSITIVE_OUTPUT="${SHOW_SENSITIVE_OUTPUT:-false}"
 	cd ../
 	build_app "${FABRIC_TNA_ROOT}"/target \
 	"${FABRIC_TNA_ROOT}"/ "fabric-tna" \
