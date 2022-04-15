@@ -84,11 +84,11 @@ export TRELLIS_T3_REPO       := https://gerrit.onosproject.org/trellis-t3
 
 # Up4 related
 export UP4_ROOT              := $(shell pwd)/up4
-export UP4_REPO              := git@github.com:omec-project/up4.git
+export UP4_REPO              := https://github.com/omec-project/up4.git
 
 # Fabric-TNA related
 export FABRIC_TNA_ROOT       := $(shell pwd)/fabric-tna
-export FABRIC_TNA_REPO       := git@github.com:stratum/fabric-tna.git
+export FABRIC_TNA_REPO       := https://github.com/stratum/fabric-tna.git
 
 .PHONY: onos trellis-control up4 fabric-tna
 
